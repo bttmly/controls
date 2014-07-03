@@ -1,4 +1,4 @@
-  class Values extends Array
+class Values extends Array
   constructor: ( arr ) ->
     if Array.isArray arr
       @push item for item in arr

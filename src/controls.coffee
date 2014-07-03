@@ -1,15 +1,13 @@
-Values = require "./values"
-isValid = require "./is-valid"
-getValue = require "./get-value"
+Values = require "./values.coffee"
+isValid = require "./is-valid.coffee"
+getValue = require "./get-value.coffee"
 
 $ = jQuery = window.jQuery
 CHECKABLE_SELECTOR = "input[type='radio'], input[type='checkbox']"
+reduce = Function::call.bind Array::reduce
 
 propMap = ( jqCollection, keyProp, valProp ) ->
-  jqCollection
-  .get()
-  # use reduce to avoid filter() and map()
-  .reduce ( acc, el, i, arr ) ->
+  reduce jqCollection, ( acc, el, i, arr ) ->
     if keyProp of el
       acc.push 
         id: el[idProp]
@@ -65,16 +63,22 @@ class Controls extends jQuery
       # reset w .data( "initialState" )
     @
 
+  # potential performance hazard ()
   clear: ->
     @filter( "select" ).find( "option" ).removeAttr "selected" 
     @filter( CHECKABLE_SELECTOR ).removeAttr "checked" 
     @not( CHECKABLE_SELECTOR ).val "" 
     @
 
-
-
   valid: ->
     @get().every isValid
 
+  bindValidator = ( fn ) ->
+    # using .data() add a validation function to the element
+  
+  labels: ->
+    reduce @, ( acc, el ) ->
+      acc.add( el.labels )
+    , do $
 
 module.exports = Controls

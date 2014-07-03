@@ -1,4 +1,4 @@
-Controls = require "./controls"
+Controls = require "./controls.coffee"
 $ = window.jQuery
 
 CONTROL_TAGS = [ "input", "select", "textarea", "button" ]

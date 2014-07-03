@@ -1,4 +1,4 @@
-validations = require "./validations"
+validations = require "./validations.coffee"
 
 splitMethods = ( str ) ->
   str?.split( "&&" ).map ( m ) -> m?.trim()

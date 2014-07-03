@@ -1,6 +1,6 @@
 slice = Function::call.bind Array::slice
 
-v = validations =   
+module.exports = v =   
   notEmpty: ( el ) -> !!el.value
 
   notEmptyTrim: ( el ) -> !!el.value.trim()
