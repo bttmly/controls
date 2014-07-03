@@ -25,12 +25,14 @@ class Controls extends jQuery
     @identifyingProp = opt.idProp or "id"
     jQuery.fn.init.call @, nodes
     @isValid = @valid()
+
     # set validity listener
     @on "change, input", =>
       isValid = @valid()
       if isValid isnt @isValid()
         if isValid then @trigger "valid" else @trigger "invalid"
         @isValid = isValid
+
     # set initial state data
     @each ->
       $( @ ).data "initialState",
@@ -60,11 +62,7 @@ class Controls extends jQuery
 
   reset: ->
     @each ->
-      if @is CHECKABLE_SELECTOR
-
-      else if @is "select"
-
-      else if @is "input"
+      # reset w .data( "initialState" )
     @
 
   clear: ->
