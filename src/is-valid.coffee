@@ -1,3 +1,5 @@
+validations = require "./validations"
+
 isValid = ( domElement ) ->
 
 
