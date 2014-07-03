@@ -1,4 +1,4 @@
-class ValueObject extends Array
+class Values extends Array
   constructor: ( arr ) ->
     if Array.isArray arr
       @push item for item in arr
@@ -45,4 +45,4 @@ class ValueObject extends Array
   serialize: -> JSON.stringify @normal()
 
 
-module.exports = ValueObject
+module.exports = Values
