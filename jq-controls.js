@@ -155,17 +155,26 @@ $ = window.jQuery;
 
 CONTROL_TAGS = ["input", "select", "textarea", "button"];
 
-module.exports = function() {
-  return $.fn.controls = function() {
+module.exports = (function() {
+  var prevControls;
+  prevControls = $.fn.controls;
+  $.fn.controls = function() {
     return new Controls(this.filter(CONTROL_TAGS));
   };
-};
+  $.fn.controls.noConflict = function() {
+    $.fn.controls = prevControls;
+    return this;
+  };
+  return void 0;
+})();
 
 
 },{"./controls.coffee":1}],4:[function(require,module,exports){
-var getArgs, getMethod, splitMethods, validations;
+var getArgs, getMethod, jQuery, splitMethods, validations;
 
 validations = require("./validations.coffee");
+
+jQuery = window.jQuery;
 
 splitMethods = function(str) {
   return str != null ? str.split("&&").map(function(m) {
@@ -186,6 +195,9 @@ getArgs = function(str) {
 
 module.exports = function(el, customFn) {
   var attr, composed;
+  if (el instanceof jQuery) {
+    el = el[0];
+  }
   if (customFn) {
     return customFn(el);
   } else if ((attr = el.dataset.controlValidation)) {
@@ -213,7 +225,7 @@ module.exports = isValid;
 
 },{"./validations.coffee":6}],5:[function(require,module,exports){
 module.exports = (function() {
-  require("./init.coffee")();
+  require("./init.coffee");
   return {
     Controls: require("./controls.coffee"),
     Values: require("./values.coffee")
@@ -251,7 +263,7 @@ module.exports = v = {
   },
   email: function(el) {
     var input;
-    if (!el.value) {
+    if (!v.notEmptyTrim(el)) {
       return false;
     }
     input = document.createElement("input");
@@ -284,8 +296,8 @@ module.exports = v = {
       maxChecked = 50;
     }
     if ((name = el.name)) {
-      len = $("input[type='checkbox'][name='" + name + "']").get().filter(function(input) {
-        return input.checked;
+      len = $("input[type='checkbox'][name='" + name + "']").filter(function() {
+        return $(this).prop("checked");
       }).length;
       return (minChecked <= len && len <= maxChecked);
     } else {

@@ -16,7 +16,7 @@ module.exports = v =
   phone: ( el ) -> v.allowed( "1234567890()-+# ", el )
 
   email: ( el ) ->
-    return false if not el.value
+    return false if not v.notEmptyTrim( el )
     input = document.createElement( "input" )
     input.type = "email"
     input.value = el.value
@@ -35,7 +35,9 @@ module.exports = v =
 
   checkbox: ( el, minChecked = 0, maxChecked = 50 ) ->
     if ( name = el.name )
-      len = $( "input[type='checkbox'][name='#{name}']" ).get().filter( ( input ) -> input.checked ).length
+      len = $( "input[type='checkbox'][name='#{name}']" ).filter -> 
+        $( this ).prop "checked"
+      .length
       return minChecked <= len <= maxChecked
     # will validate unnamed checkboxes
     else

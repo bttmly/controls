@@ -1,4 +1,5 @@
 validations = require "./validations.coffee"
+jQuery = window.jQuery
 
 splitMethods = ( str ) ->
   str?.split( "&&" ).map ( m ) -> m?.trim()
@@ -10,6 +11,7 @@ getArgs = ( str ) ->
   str?.match( /\(([^)]+)\)/ )?[ 1 ].split( "," ).map ( arg ) -> arg?.trim().replace(/'/g, "")
 
 module.exports = ( el, customFn ) ->
+  el = el[0] if el instanceof jQuery
   if customFn
     return customFn( el )
   else if ( attr = el.dataset.controlValidation )

@@ -1,4 +1,4 @@
 module.exports = do ->
-  do require "./init.coffee"
+  require "./init.coffee"
   Controls: require "./controls.coffee"
   Values: require "./values.coffee"
