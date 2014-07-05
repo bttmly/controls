@@ -21,7 +21,7 @@ module.exports = v =
 
   isValue: ( el, value  ) -> String( el.value ) is String( value )
 
-  phone: ( el ) -> @allowed( "1234567890()-+# ", el )
+  phone: ( el ) -> @allowed el, "1234567890()-+# " 
 
   # .email() and .url() will throw in IE < 9 http://api.jquery.com/attr/
   email: ( el ) ->
@@ -58,11 +58,11 @@ module.exports = v =
     if min <= selected.length <= max then true else false
 
   allowed: ( el, allowedChars ) ->
-      allowedChars = allowedChars.split( "" )
-      str = el.value.split( "" )
-      for char in str
-        return false if char not in allowedChars
-      return true
+    allowedChars = allowedChars.split( "" )
+    str = el.value.split( "" )
+    for char in str
+      return false if char not in allowedChars
+    return true
 
   notAllowed: ( el, notAllowedChars ) ->
     notAllowedChars = notAllowedChars.split( "" )

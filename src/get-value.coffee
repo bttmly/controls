@@ -1,17 +1,27 @@
 $ = window.jQuery
 
-module.exports = ( el ) ->
+CHECKABLE = "input[type='checkbox'], input[type='radio']"
+SELECTED = ":selected:not(:disabled)"
+BUTTON = "input[type='button'], button"
+
+getValue = ( el ) ->
   $el = $( el )
-  if $el.is "[type='checkbox'], [type='radio']"
+  if $el.is BUTTON
+    null
+  else if $el.is CHECKABLE
     if el.checked then el.value else null
   else if $el.is "select"
     $el
-    .find( "option:selected" )
-    .not( ":disabled" )
-    .get()
+    .find SELECTED
     .map ( el ) ->
       el.value or el.innerHTML
-  else if $el.is "input"
-    el.value or null
   else
-    null
+    el.value or null
+
+# For use with jQuery's ass-backwards .map() method.
+getValueMappable = ( i, el ) ->
+  getValue( el )
+
+module.exports = 
+  getValue: getValue
+  getValueMappable: getValueMappable

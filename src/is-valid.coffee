@@ -1,35 +1,44 @@
 validations = require "./validations.coffee"
 jQuery = window.jQuery
 
+# matches method calls
+# splitMethods( "lengthMin( 8 ) && lengthMax( 12 )" ) => ["lengthMin( 8 )", "lengthMax( 12 )"]
 splitMethods = ( str ) ->
   str?.split( "&&" ).map ( m ) -> m?.trim()
 
+# gets method names
+# getMethod( "lengthMin( 8 )" ) => "lengthMin"
 getMethod = ( str ) ->
   str?.split( "(" )[0]
 
-# matches arguments 
-# getArgs( "methodName( arg1, arg2 )" ) => " arg1, arg2 "
+# gets arguments
+# getArgs( "methodName( arg1, arg2 )" ) => ["arg1", "arg2"]
 getArgs = ( str ) ->
-  str?.match( /\(([^)]+)\)/ )?[ 1 ].split( "," ).map ( arg ) -> arg?.trim().replace(/'/g, "")
+  str?.match( /\(([^)]+)\)/ )?[ 1 ]
+    .split ","
+    .map ( arg ) -> 
+      arg?.trim().replace(/'/g, "")
 
-# this is broken right now
-module.exports = ( el, customFn ) ->
-  el = el[0] if el instanceof jQuery
+isValid = ( el, customFn ) ->
+  $el = $( el )
+  el = el[0]
+  validationAttr = $el.data "control-validation"
+  validationFns = $el.data "validators"
   if customFn
-    return customFn( el )
-  else if ( attr = el.dataset.controlValidation )
-    composed = splitMethods( attr )
-    return composed.every ( str ) ->
-      method = getMethod( str )
-      args = getArgs( str ) or []
-      sigLength = controlValidations[method].length
-      args.length = if sigLength is 0 then 0 else sigLength - 1
-      args.push( el )
-      if method of controlValidations
-        controlValidations[method].apply( null, args )
-      else
-        return false
+    return !!customFn el
+  else if validationFns
+    return validationFns.every ( fn ) ->
+      fn( el )
+  else if validationAttr
+    validations = splitMethods( validationAttr ).map ( fnCallStr ) ->
+      obj = {}
+      obj.method = getMethod( fnCallStr )
+      obj.args = getArgs( fnCallStr )
+      obj
+    return validations.every ( callDesc ) ->
+      return false unless callDesc.method of validations
+      validations[callDesc.method].apply null, [ el ].concat callDesc.args
   else
-    el.validity.valid
+    return el.validity.valid
       
 module.exports = isValid

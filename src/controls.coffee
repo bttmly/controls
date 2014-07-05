@@ -4,7 +4,8 @@ getValue = require "./get-value.coffee"
 { reduce } = require "./utils.coffee"
 
 $ = jQuery = window.jQuery
-CHECKABLE_SELECTOR = "input[type='radio'], input[type='checkbox']"
+CHECKABLE = "input[type='radio'], input[type='checkbox']"
+BUTTON = "input[type='button'], button"
 
 propMap = ( jqCollection, keyProp, valProp ) ->
   reduce jqCollection, ( acc, el, i, arr ) ->
@@ -39,7 +40,7 @@ class Controls extends jQuery
           disabled: @prop "disabled"
           required: @prop "required"
           value: do ->
-            if @is CHECKABLE_SELECTOR
+            if @is CHECKABLE
               @prop "checked"
             else if @is "select"
               @find( "option:selected" )
@@ -67,17 +68,17 @@ class Controls extends jQuery
       # reset w .data( "initialState" )
     @
 
-  # potential performance hazard (3x iteration)
   clear: ->
     @filter( "select" ).find( "option" ).removeAttr "selected" 
-    @filter( CHECKABLE_SELECTOR ).removeAttr "checked" 
-    @not( CHECKABLE_SELECTOR ).val "" 
+    @filter( CHECKABLE ).removeAttr "checked" 
+    @not( CHECKABLE ).val "" 
     @
 
   valid: ->
     @get().every isValid
 
   bindValidator = ( fn ) ->
+    
     # using .data() add a validation function to the element
   
   labels: ->
