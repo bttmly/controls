@@ -4,3 +4,4 @@ demethodize: ( fn ) ->
 module.exports = 
   slice: demethodize [].slice
   reduce: demethodize [].reduce
+  objMap: ( obj, callback ) ->
