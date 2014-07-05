@@ -1,4 +1,4 @@
-slice = Function::call.bind Array::slice
+{ slice } = require "./utils.coffee"
 
 testEl = document.createElement "input"
 

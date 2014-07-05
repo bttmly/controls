@@ -3,7 +3,7 @@ var coffeeify = require( "coffeeify" );
 var fs = require( "fs" );
 
 var b = browserify();
-b.add( "./src/package.coffee" );
+b.add( "./src/jquery-controls.coffee" );
 b.transform( coffeeify );
 b.bundle( function( err, src ) {
   if ( err ) {

@@ -9,11 +9,11 @@ isValid = require("./is-valid.coffee");
 
 getValue = require("./get-value.coffee");
 
+reduce = require("./utils.coffee").reduce;
+
 $ = jQuery = window.jQuery;
 
 CHECKABLE_SELECTOR = "input[type='radio'], input[type='checkbox']";
-
-reduce = Function.prototype.call.bind(Array.prototype.reduce);
 
 propMap = function(jqCollection, keyProp, valProp) {
   return reduce(jqCollection, function(acc, el, i, arr) {
@@ -38,8 +38,8 @@ Controls = (function(_super) {
     if (opt == null) {
       opt = {};
     }
-    this.identifyingProp = opt.idProp || "id";
     jQuery.fn.init.call(this, nodes);
+    this.identifyingProp = opt.idProp || "id";
     this.isValid = this.valid();
     this.on("change, input", (function(_this) {
       return function() {
@@ -120,7 +120,7 @@ Controls = (function(_super) {
 module.exports = Controls;
 
 
-},{"./get-value.coffee":2,"./is-valid.coffee":4,"./values.coffee":7}],2:[function(require,module,exports){
+},{"./get-value.coffee":2,"./is-valid.coffee":4,"./utils.coffee":6,"./values.coffee":8}],2:[function(require,module,exports){
 var $;
 
 $ = window.jQuery;
@@ -223,7 +223,7 @@ module.exports = function(el, customFn) {
 module.exports = isValid;
 
 
-},{"./validations.coffee":6}],5:[function(require,module,exports){
+},{"./validations.coffee":7}],5:[function(require,module,exports){
 module.exports = (function() {
   require("./init.coffee");
   return {
@@ -233,11 +233,32 @@ module.exports = (function() {
 })();
 
 
-},{"./controls.coffee":1,"./init.coffee":3,"./values.coffee":7}],6:[function(require,module,exports){
-var slice, v,
+},{"./controls.coffee":1,"./init.coffee":3,"./values.coffee":8}],6:[function(require,module,exports){
+({
+  demethodize: function(fn) {
+    return Function.prototype.call.bind(fn);
+  }
+});
+
+module.exports = {
+  slice: demethodize([].slice),
+  reduce: demethodize([].reduce)
+};
+
+
+},{}],7:[function(require,module,exports){
+var builtInValidation, slice, testEl, v,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-slice = Function.prototype.call.bind(Array.prototype.slice);
+slice = require("./utils.coffee").slice;
+
+testEl = document.createElement("input");
+
+builtInValidation = function(inputType, value) {
+  testEl.type = inputType;
+  testEl.value = value;
+  return testEl.validity.valid;
+};
 
 module.exports = v = {
   notEmpty: function(el) {
@@ -262,14 +283,16 @@ module.exports = v = {
     return v.allowed("1234567890()-+# ", el);
   },
   email: function(el) {
-    var input;
     if (!v.notEmptyTrim(el)) {
       return false;
     }
-    input = document.createElement("input");
-    input.type = "email";
-    input.value = el.value;
-    return input.validity.valid;
+    return builtInValidation("email", el.value);
+  },
+  url: function(el) {
+    if (!v.notEmptyTrim(el)) {
+      return false;
+    }
+    return builtInValidation("url", el.value);
   },
   list: function(el) {
     var _ref;
@@ -371,7 +394,7 @@ module.exports = v = {
 };
 
 
-},{}],7:[function(require,module,exports){
+},{"./utils.coffee":6}],8:[function(require,module,exports){
 var Values,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -379,16 +402,11 @@ var Values,
 Values = (function(_super) {
   __extends(Values, _super);
 
-  function Values(arr) {
-    var item, _i, _len;
-    if (Array.isArray(arr)) {
-      for (_i = 0, _len = arr.length; _i < _len; _i++) {
-        item = arr[_i];
-        this.push(item);
-      }
-    } else {
-      throw new TypeError("Pass an array to the ValueObject constructor!");
+  function Values(items) {
+    if (!Array.isArray(items)) {
+      throw new TypeError();
     }
+    this.push.apply(this, items);
   }
 
   Values.prototype.normal = function() {

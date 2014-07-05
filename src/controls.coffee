@@ -1,10 +1,10 @@
 Values = require "./values.coffee"
 isValid = require "./is-valid.coffee"
 getValue = require "./get-value.coffee"
+{ reduce } = require "./utils.coffee"
 
 $ = jQuery = window.jQuery
 CHECKABLE_SELECTOR = "input[type='radio'], input[type='checkbox']"
-reduce = Function::call.bind Array::reduce
 
 propMap = ( jqCollection, keyProp, valProp ) ->
   reduce jqCollection, ( acc, el, i, arr ) ->

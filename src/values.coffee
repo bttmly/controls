@@ -1,9 +1,7 @@
 class Values extends Array
-  constructor: ( arr ) ->
-    if Array.isArray arr
-      @push item for item in arr
-    else
-      throw new TypeError( "Pass an array to the ValueObject constructor!" )
+  constructor: ( items ) ->
+    throw new TypeError() unless Array.isArray items
+    @push.apply @, items
 
   normal: ->
     [].concat @
