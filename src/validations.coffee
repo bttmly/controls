@@ -2,7 +2,7 @@
 
 testEl = document.createElement "input"
 
-builtInValidation = ( inputType, value ) ->
+html5Validation = ( inputType, value ) ->
   testEl.type = inputType
   testEl.value = value
   testEl.validity.valid
@@ -21,35 +21,35 @@ module.exports = v =
 
   isValue: ( el, value  ) -> String( el.value ) is String( value )
 
-  phone: ( el ) -> v.allowed( "1234567890()-+# ", el )
+  phone: ( el ) -> @allowed( "1234567890()-+# ", el )
 
   # .email() and .url() will throw in IE < 9 http://api.jquery.com/attr/
   email: ( el ) ->
-    return false if not v.notEmptyTrim( el )
-    builtInValidation( "email", el.value )
+    return false if not @notEmptyTrim( el )
+    html5Validation( "email", el.value )
 
   url: ( el ) ->
-    return false if not v.notEmptyTrim( el )
-    builtInValidation( "url", el.value )
+    return false if not @notEmptyTrim( el )
+    html5Validation( "url", el.value )
 
   list: ( el ) ->
     el.value in slice( el.list.options or [] ).map ( option ) ->
       option.value or option.innerHTML
 
   radio: ( el ) ->
-    if ( name = el.name )
-      return $( "input[type='radio'][name='#{name}']" ).get().some ( input ) -> input.checked
-    # won't validate unnamed radios
+    if ( el.name )
+      return $( "input[type='radio'][name='#{ el.name }']" ).get().some ( input ) -> input.checked
+    # false for unnamed elements
     else
       false
 
   checkbox: ( el, minChecked = 0, maxChecked = 50 ) ->
-    if ( name = el.name )
-      len = $( "input[type='checkbox'][name='#{name}']" ).filter -> 
+    if ( el.name )
+      len = $( "input[type='checkbox'][name='#{ el.name }']" ).filter -> 
         $( this ).prop "checked"
       .length
       return minChecked <= len <= maxChecked
-    # will validate unnamed checkboxes
+    # true for unnamed elements
     else
       true
 

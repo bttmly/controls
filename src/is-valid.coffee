@@ -7,9 +7,12 @@ splitMethods = ( str ) ->
 getMethod = ( str ) ->
   str?.split( "(" )[0]
 
+# matches arguments 
+# getArgs( "methodName( arg1, arg2 )" ) => " arg1, arg2 "
 getArgs = ( str ) ->
   str?.match( /\(([^)]+)\)/ )?[ 1 ].split( "," ).map ( arg ) -> arg?.trim().replace(/'/g, "")
 
+# this is broken right now
 module.exports = ( el, customFn ) ->
   el = el[0] if el instanceof jQuery
   if customFn
