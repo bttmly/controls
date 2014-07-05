@@ -1,6 +1,14 @@
 slice = Function::call.bind Array::slice
 
-module.exports = v =   
+testEl = document.createElement "input"
+
+builtInValidation = ( inputType, value ) ->
+  testEl.type = inputType
+  testEl.value = value
+  testEl.validity.valid
+
+module.exports = v =
+
   notEmpty: ( el ) -> !!el.value
 
   notEmptyTrim: ( el ) -> !!el.value.trim()
@@ -15,12 +23,14 @@ module.exports = v =
 
   phone: ( el ) -> v.allowed( "1234567890()-+# ", el )
 
+  # .email() and .url() will throw in IE < 9 http://api.jquery.com/attr/
   email: ( el ) ->
     return false if not v.notEmptyTrim( el )
-    input = document.createElement( "input" )
-    input.type = "email"
-    input.value = el.value
-    input.validity.valid
+    builtInValidation( "email", el.value )
+
+  url: ( el ) ->
+    return false if not v.notEmptyTrim( el )
+    builtInValidation( "url", el.value )
 
   list: ( el ) ->
     el.value in slice( el.list.options or [] ).map ( option ) ->

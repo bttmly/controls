@@ -19,9 +19,10 @@ class Controls extends jQuery
 
   @isValid: isValid
 
+  # maybe we should filter for control tags in here.
   constructor: ( nodes, opt = {} ) ->
-    @identifyingProp = opt.idProp or "id"
     jQuery.fn.init.call @, nodes
+    @identifyingProp = opt.idProp or "id"
     @isValid = @valid()
 
     # set validity listener
@@ -32,6 +33,7 @@ class Controls extends jQuery
         @isValid = isValid
 
     # set initial state data
+    # refer to jq attr/prop to make this easier
     @each ->
       $( @ ).data "initialState",
           disabled: @prop "disabled"
@@ -55,6 +57,8 @@ class Controls extends jQuery
   propValues: ( prop ) ->
     new Values propMap @, @idProp, prop
 
+  # this is totally incorrect
+  # we need to map over getValue() results
   values: ->
     @propValues "value"
 
@@ -63,7 +67,7 @@ class Controls extends jQuery
       # reset w .data( "initialState" )
     @
 
-  # potential performance hazard ()
+  # potential performance hazard (3x iteration)
   clear: ->
     @filter( "select" ).find( "option" ).removeAttr "selected" 
     @filter( CHECKABLE_SELECTOR ).removeAttr "checked" 
