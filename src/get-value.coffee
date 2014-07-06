@@ -18,10 +18,4 @@ getValue = ( el ) ->
   else
     el.value or null
 
-# For use with jQuery's ass-backwards .map() method.
-getValueMappable = ( i, el ) ->
-  getValue( el )
-
-module.exports = 
-  getValue: getValue
-  getValueMappable: getValueMappable
+module.exports = getValue

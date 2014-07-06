@@ -1,14 +1,14 @@
 Values = require "./values.coffee"
 isValid = require "./is-valid.coffee"
-getValue = require "./get-value.coffee"
-{ reduce } = require "./utils.coffee"
+getValue = require( "./get-value.coffee" ).getValueMappable
+{ map, reduce } = require "./utils.coffee"
 
 $ = jQuery = window.jQuery
 CHECKABLE = "input[type='radio'], input[type='checkbox']"
 BUTTON = "input[type='button'], button"
 
 propMap = ( jqCollection, keyProp, valProp ) ->
-  reduce jqCollection, ( acc, el, i, arr ) ->
+  jqCollection.get().reduce ( acc, el, i, arr ) ->
     if keyProp of el
       acc.push 
         id: el[idProp]
@@ -58,10 +58,8 @@ class Controls extends jQuery
   propValues: ( prop ) ->
     new Values propMap @, @idProp, prop
 
-  # this is totally incorrect
-  # we need to map over getValue() results
   values: ->
-    @propValues "value"
+    new Values @get().map getValue
 
   reset: ->
     @each ->
@@ -73,6 +71,13 @@ class Controls extends jQuery
     @filter( CHECKABLE ).removeAttr "checked" 
     @not( CHECKABLE ).val "" 
     @
+
+  check: -> @attr "checked", "checked"
+  uncheck: -> @removeAttr "checked"
+  require: -> @attr "required", "required"
+  unrequire: -> @removeAttr "required"
+  disable: -> @attr "disabled", "disabled"
+  enable: -> @removeAttr "disabled"
 
   valid: ->
     @get().every isValid
