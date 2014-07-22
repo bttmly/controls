@@ -193,7 +193,7 @@ module.exports = (function() {
   var prevControls;
   prevControls = $.fn.controls;
   $.fn.controls = function() {
-    return new Controls(this.filter(CONTROL_TAGS));
+    return new Controls(this.find(CONTROL_TAGS));
   };
   $.fn.controls.noConflict = function() {
     $.fn.controls = prevControls;
@@ -264,11 +264,13 @@ module.exports = isValid;
 },{"./validations.coffee":7}],5:[function(require,module,exports){
 module.exports = (function() {
   require("./init.coffee");
+  $.Controls = require("./controls.coffee");
+  $.Values = require("./values.coffee");
   return void 0;
 })();
 
 
-},{"./init.coffee":3}],6:[function(require,module,exports){
+},{"./controls.coffee":1,"./init.coffee":3,"./values.coffee":8}],6:[function(require,module,exports){
 var demethodize;
 
 demethodize = function(fn) {

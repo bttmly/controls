@@ -5219,11 +5219,15 @@ process.chdir = function (dir) {
 };
 
 },{}],37:[function(require,module,exports){
-var $, Promise, assert, expect, htmlFiles, jQuery, should, utils;
+var $, Control, Promise, Values, assert, expect, htmlFiles, jQuery, should, trees, utils;
 
 Promise = require("bluebird");
 
 $ = jQuery = window.jQuery;
+
+Control = $.Control;
+
+Values = $.Values;
 
 utils = require("./spec-utilities.coffee");
 
@@ -5233,7 +5237,7 @@ expect = chai.expect;
 
 should = chai.should();
 
-window.trees = [];
+trees = window.trees = [];
 
 trees.byId = function(id) {
   var tree, _i, _len;
@@ -5254,16 +5258,57 @@ Promise.all(htmlFiles.map($.get).map(Promise.resolve)).then(function(data) {
 });
 
 describe("jQuery.fn.controls()", function() {
-  it("exists", function() {
-    return expect(jQuery.fn.controls).to.be.a("function");
+  return describe("basics", function() {
+    it("exists", function() {
+      return expect(jQuery.fn.controls).to.be.a("function");
+    });
+    return it("works", function() {
+      var cSel, jSel;
+      cSel = trees.byId("values").controls();
+      jSel = trees.byId("values").filter("input, button, select");
+      return expect(utils.areSameSelection(cSel, jSel)).to.equal(true);
+    });
   });
-  it("works", function() {
-    var cSel, jSel;
-    cSel = trees[0].controls();
-    jSel = trees[0].filter("input, button, select");
-    return expect(utils.areSameSelection(cSel, jSel)).to.equal(true);
+});
+
+describe("Control prototype methods", function() {
+  var cSel, jSel;
+  jSel = void 0;
+  cSel = void 0;
+  beforeEach(function() {
+    jSel = trees.byId("values");
+    cSel = trees.byId("values").controls();
+    console.log(cSel);
+    return console.log(jSel);
   });
-  return it("produces Control objects");
+  describe("@filter()", function() {
+    it("filters selections", function() {
+      var cF, jF;
+      jF = jSel.filter("input");
+      cF = cSel.filter("input");
+      return expect(utils.areSameSelection(jF, cF)).to.equal(true);
+    });
+    return it("returns Control objects", function() {
+      var cF, jF;
+      jF = jSel.filter("input");
+      cF = cSel.filter("input");
+      return expect(cF).to.be["instanceof"](Controls);
+    });
+  });
+  describe("@not()", function() {});
+  describe("@propValues()", function() {});
+  describe("@values()", function() {});
+  describe("@reset()", function() {});
+  describe("@clear()", function() {});
+  describe("@check", function() {});
+  describe("@uncheck", function() {});
+  describe("@require", function() {});
+  describe("@unrequire", function() {});
+  describe("@disable", function() {});
+  describe("@enable", function() {});
+  describe("@valid", function() {});
+  describe("@bindValidator", function() {});
+  describe("@labels", function() {});
 });
 
 
