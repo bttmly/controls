@@ -5265,36 +5265,16 @@ describe("jQuery.fn.controls()", function() {
     return it("works", function() {
       var cSel, jSel;
       cSel = trees.byId("values").controls();
-      jSel = trees.byId("values").filter("input, button, select");
+      jSel = trees.byId("values").find("input, button, select");
+      console.log(cSel);
+      console.log(jSel);
       return expect(utils.areSameSelection(cSel, jSel)).to.equal(true);
     });
   });
 });
 
 describe("Control prototype methods", function() {
-  var cSel, jSel;
-  jSel = void 0;
-  cSel = void 0;
-  beforeEach(function() {
-    jSel = trees.byId("values");
-    cSel = trees.byId("values").controls();
-    console.log(cSel);
-    return console.log(jSel);
-  });
-  describe("@filter()", function() {
-    it("filters selections", function() {
-      var cF, jF;
-      jF = jSel.filter("input");
-      cF = cSel.filter("input");
-      return expect(utils.areSameSelection(jF, cF)).to.equal(true);
-    });
-    return it("returns Control objects", function() {
-      var cF, jF;
-      jF = jSel.filter("input");
-      cF = cSel.filter("input");
-      return expect(cF).to.be["instanceof"](Controls);
-    });
-  });
+  describe("@filter()", function() {});
   describe("@not()", function() {});
   describe("@propValues()", function() {});
   describe("@values()", function() {});

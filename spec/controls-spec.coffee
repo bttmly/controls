@@ -1,7 +1,5 @@
 Promise = require "bluebird"
 
-# make sure we're using the same jQuery here as in the lib.
-# DON'T require it.
 $ = jQuery = window.jQuery
 # mocha = window.mocha
 
@@ -43,33 +41,19 @@ describe "jQuery.fn.controls()", ->
 
     it "works", ->
       cSel = trees.byId( "values" ).controls()
-      jSel = trees.byId( "values" ).filter( "input, button, select" )
+      jSel = trees.byId( "values" ).find "input, button, select"
+
+      console.log cSel
+      console.log jSel
+
+
       expect( utils.areSameSelection cSel, jSel ).to.equal true
 
   # it "produces Control objects"
 
 describe "Control prototype methods", ->
-  
-  jSel = undefined
-  cSel = undefined
-
-  beforeEach ->
-    jSel = trees.byId( "values" )
-    cSel = trees.byId( "values" ).controls()
-    console.log cSel
-    console.log jSel
 
   describe "@filter()", ->
-
-    it "filters selections", ->
-      jF = jSel.filter "input"
-      cF = cSel.filter "input"
-      expect( utils.areSameSelection jF, cF ).to.equal true
-    
-    it "returns Control objects", ->
-      jF = jSel.filter("input");
-      cF = cSel.filter("input");
-      expect( cF ).to.be.instanceof Controls
 
   describe "@not()", ->
 

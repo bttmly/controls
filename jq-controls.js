@@ -56,22 +56,28 @@ Controls = (function(_super) {
         }
       };
     })(this));
-    this.each(function() {
-      return $(this).data("initialState", {
-        disabled: this.prop("disabled"),
-        required: this.prop("required"),
-        value: (function() {
-          if (this.is(CHECKABLE)) {
-            return this.prop("checked");
-          } else if (this.is("select")) {
-            return this.find("option:selected");
-          } else if (this.is("input")) {
-            return this.val();
-          } else {
-            return null;
-          }
-        })()
-      });
+    this.each(function(i, el) {
+      return (function() {
+        return this.data("initialValue", {
+          disabled: this.prop("disabled"),
+          required: this.prop("required"),
+          value: (function(_this) {
+            return function() {
+              if (_this.is(CHECKABLE)) {
+                return _this.prop("checked");
+              } else if (_this.is("select")) {
+                return _this.find("option:selected").get().map(function(el) {
+                  return el.value || el.innerHTML;
+                });
+              } else if (_this.is("input")) {
+                return _this.val();
+              } else {
+                return null;
+              }
+            };
+          })(this)()
+        });
+      }).call($(el));
     });
   }
 
@@ -193,7 +199,7 @@ module.exports = (function() {
   var prevControls;
   prevControls = $.fn.controls;
   $.fn.controls = function() {
-    return new Controls(this.find(CONTROL_TAGS));
+    return new Controls(this.find(CONTROL_TAGS.join(", ")));
   };
   $.fn.controls.noConflict = function() {
     $.fn.controls = prevControls;
@@ -230,16 +236,18 @@ getArgs = function(str) {
 isValid = function(el, customFn) {
   var $el, validationAttr, validationFns;
   $el = $(el);
-  el = el[0];
   validationAttr = $el.data("control-validation");
   validationFns = $el.data("validators");
-  if (customFn) {
+  if (customFn && typeof customFn === "function") {
+    console.log("a");
     return !!customFn(el);
   } else if (validationFns) {
+    console.log("b");
     return validationFns.every(function(fn) {
       return fn(el);
     });
   } else if (validationAttr) {
+    console.log("c");
     validations = splitMethods(validationAttr).map(function(fnCallStr) {
       var obj;
       obj = {};
@@ -254,6 +262,7 @@ isValid = function(el, customFn) {
       return validations[callDesc.method].apply(null, [el].concat(callDesc.args));
     });
   } else {
+    console.log("d");
     return el.validity.valid;
   }
 };

@@ -35,20 +35,22 @@ class Controls extends jQuery
 
     # set initial state data
     # refer to jq attr/prop to make this easier
-    @each ->
-      $( @ ).data "initialState",
+    @each ( i, el ) ->
+      ( -> 
+        @data "initialValue", 
           disabled: @prop "disabled"
           required: @prop "required"
-          value: do ->
+          value: do =>
             if @is CHECKABLE
               @prop "checked"
             else if @is "select"
-              @find( "option:selected" )
+              @find( "option:selected" ).get().map ( el ) ->
+                el.value || el.innerHTML
             else if @is "input"
               @val()
             else
               null
-
+      ).call $ el
   filter: ->
     super( arguments ).controls()
 

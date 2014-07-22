@@ -21,15 +21,17 @@ getArgs = ( str ) ->
 
 isValid = ( el, customFn ) ->
   $el = $( el )
-  el = el[0]
   validationAttr = $el.data "control-validation"
   validationFns = $el.data "validators"
-  if customFn
+  if customFn and typeof customFn is "function"
+    console.log "a"
     return !!customFn el
   else if validationFns
+    console.log "b"
     return validationFns.every ( fn ) ->
       fn( el )
   else if validationAttr
+    console.log "c"
     validations = splitMethods( validationAttr ).map ( fnCallStr ) ->
       obj = {}
       obj.method = getMethod( fnCallStr )
@@ -39,6 +41,7 @@ isValid = ( el, customFn ) ->
       return false unless callDesc.method of validations
       validations[callDesc.method].apply null, [ el ].concat callDesc.args
   else
+    console.log "d"
     return el.validity.valid
       
 module.exports = isValid
