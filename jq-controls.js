@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var $, CHECKABLE_SELECTOR, Controls, Values, getValue, isValid, jQuery, propMap, reduce,
+var $, BUTTON, CHECKABLE, Controls, Values, getValue, isValid, jQuery, map, propMap, reduce, _ref,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -7,16 +7,18 @@ Values = require("./values.coffee");
 
 isValid = require("./is-valid.coffee");
 
-getValue = require("./get-value.coffee");
+getValue = require("./get-value.coffee").getValueMappable;
 
-reduce = require("./utils.coffee").reduce;
+_ref = require("./utils.coffee"), map = _ref.map, reduce = _ref.reduce;
 
 $ = jQuery = window.jQuery;
 
-CHECKABLE_SELECTOR = "input[type='radio'], input[type='checkbox']";
+CHECKABLE = "input[type='radio'], input[type='checkbox']";
+
+BUTTON = "input[type='button'], button";
 
 propMap = function(jqCollection, keyProp, valProp) {
-  return reduce(jqCollection, function(acc, el, i, arr) {
+  return jqCollection.get().reduce(function(acc, el, i, arr) {
     if (keyProp in el) {
       acc.push({
         id: el[idProp],
@@ -59,7 +61,7 @@ Controls = (function(_super) {
         disabled: this.prop("disabled"),
         required: this.prop("required"),
         value: (function() {
-          if (this.is(CHECKABLE_SELECTOR)) {
+          if (this.is(CHECKABLE)) {
             return this.prop("checked");
           } else if (this.is("select")) {
             return this.find("option:selected");
@@ -86,7 +88,7 @@ Controls = (function(_super) {
   };
 
   Controls.prototype.values = function() {
-    return this.propValues("value");
+    return new Values(this.get().map(getValue));
   };
 
   Controls.prototype.reset = function() {
@@ -96,9 +98,33 @@ Controls = (function(_super) {
 
   Controls.prototype.clear = function() {
     this.filter("select").find("option").removeAttr("selected");
-    this.filter(CHECKABLE_SELECTOR).removeAttr("checked");
-    this.not(CHECKABLE_SELECTOR).val("");
+    this.filter(CHECKABLE).removeAttr("checked");
+    this.not(CHECKABLE).val("");
     return this;
+  };
+
+  Controls.prototype.check = function() {
+    return this.attr("checked", "checked");
+  };
+
+  Controls.prototype.uncheck = function() {
+    return this.removeAttr("checked");
+  };
+
+  Controls.prototype.require = function() {
+    return this.attr("required", "required");
+  };
+
+  Controls.prototype.unrequire = function() {
+    return this.removeAttr("required");
+  };
+
+  Controls.prototype.disable = function() {
+    return this.attr("disabled", "disabled");
+  };
+
+  Controls.prototype.enable = function() {
+    return this.removeAttr("disabled");
   };
 
   Controls.prototype.valid = function() {
@@ -121,29 +147,37 @@ module.exports = Controls;
 
 
 },{"./get-value.coffee":2,"./is-valid.coffee":4,"./utils.coffee":6,"./values.coffee":8}],2:[function(require,module,exports){
-var $;
+var $, BUTTON, CHECKABLE, SELECTED, getValue;
 
 $ = window.jQuery;
 
-module.exports = function(el) {
+CHECKABLE = "input[type='checkbox'], input[type='radio']";
+
+SELECTED = ":selected:not(:disabled)";
+
+BUTTON = "input[type='button'], button";
+
+getValue = function(el) {
   var $el;
   $el = $(el);
-  if ($el.is("[type='checkbox'], [type='radio']")) {
+  if ($el.is(BUTTON)) {
+    return null;
+  } else if ($el.is(CHECKABLE)) {
     if (el.checked) {
       return el.value;
     } else {
       return null;
     }
   } else if ($el.is("select")) {
-    return $el.find("option:selected").not(":disabled").get().map(function(el) {
+    return $el.find(SELECTED).map(function(el) {
       return el.value || el.innerHTML;
     });
-  } else if ($el.is("input")) {
-    return el.value || null;
   } else {
-    return null;
+    return el.value || null;
   }
 };
+
+module.exports = getValue;
 
 
 },{}],3:[function(require,module,exports){
@@ -170,7 +204,7 @@ module.exports = (function() {
 
 
 },{"./controls.coffee":1}],4:[function(require,module,exports){
-var getArgs, getMethod, jQuery, splitMethods, validations;
+var getArgs, getMethod, isValid, jQuery, splitMethods, validations;
 
 validations = require("./validations.coffee");
 
@@ -193,27 +227,31 @@ getArgs = function(str) {
   }) : void 0 : void 0;
 };
 
-module.exports = function(el, customFn) {
-  var attr, composed;
-  if (el instanceof jQuery) {
-    el = el[0];
-  }
+isValid = function(el, customFn) {
+  var $el, validationAttr, validationFns;
+  $el = $(el);
+  el = el[0];
+  validationAttr = $el.data("control-validation");
+  validationFns = $el.data("validators");
   if (customFn) {
-    return customFn(el);
-  } else if ((attr = el.dataset.controlValidation)) {
-    composed = splitMethods(attr);
-    return composed.every(function(str) {
-      var args, method, sigLength;
-      method = getMethod(str);
-      args = getArgs(str) || [];
-      sigLength = controlValidations[method].length;
-      args.length = sigLength === 0 ? 0 : sigLength - 1;
-      args.push(el);
-      if (method in controlValidations) {
-        return controlValidations[method].apply(null, args);
-      } else {
+    return !!customFn(el);
+  } else if (validationFns) {
+    return validationFns.every(function(fn) {
+      return fn(el);
+    });
+  } else if (validationAttr) {
+    validations = splitMethods(validationAttr).map(function(fnCallStr) {
+      var obj;
+      obj = {};
+      obj.method = getMethod(fnCallStr);
+      obj.args = getArgs(fnCallStr);
+      return obj;
+    });
+    return validations.every(function(callDesc) {
+      if (!(callDesc.method in validations)) {
         return false;
       }
+      return validations[callDesc.method].apply(null, [el].concat(callDesc.args));
     });
   } else {
     return el.validity.valid;
@@ -226,35 +264,42 @@ module.exports = isValid;
 },{"./validations.coffee":7}],5:[function(require,module,exports){
 module.exports = (function() {
   require("./init.coffee");
-  return {
-    Controls: require("./controls.coffee"),
-    Values: require("./values.coffee")
-  };
+  return void 0;
 })();
 
 
-},{"./controls.coffee":1,"./init.coffee":3,"./values.coffee":8}],6:[function(require,module,exports){
-({
-  demethodize: function(fn) {
-    return Function.prototype.call.bind(fn);
-  }
-});
+},{"./init.coffee":3}],6:[function(require,module,exports){
+var demethodize;
+
+demethodize = function(fn) {
+  return Function.prototype.call.bind(fn);
+};
 
 module.exports = {
+  map: demethodize([].map),
   slice: demethodize([].slice),
-  reduce: demethodize([].reduce)
+  reduce: demethodize([].reduce),
+  objMap: function(obj, callback) {
+    var key, result, value;
+    result = {};
+    for (key in obj) {
+      value = obj[key];
+      result[key] = callback(value, key, obj);
+    }
+    return result;
+  }
 };
 
 
 },{}],7:[function(require,module,exports){
-var builtInValidation, slice, testEl, v,
+var html5Validation, slice, testEl, v,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 slice = require("./utils.coffee").slice;
 
 testEl = document.createElement("input");
 
-builtInValidation = function(inputType, value) {
+html5Validation = function(inputType, value) {
   testEl.type = inputType;
   testEl.value = value;
   return testEl.validity.valid;
@@ -280,19 +325,19 @@ module.exports = v = {
     return String(el.value) === String(value);
   },
   phone: function(el) {
-    return v.allowed("1234567890()-+# ", el);
+    return this.allowed(el, "1234567890()-+# ");
   },
   email: function(el) {
-    if (!v.notEmptyTrim(el)) {
+    if (!this.notEmptyTrim(el)) {
       return false;
     }
-    return builtInValidation("email", el.value);
+    return html5Validation("email", el.value);
   },
   url: function(el) {
-    if (!v.notEmptyTrim(el)) {
+    if (!this.notEmptyTrim(el)) {
       return false;
     }
-    return builtInValidation("url", el.value);
+    return html5Validation("url", el.value);
   },
   list: function(el) {
     var _ref;
@@ -301,9 +346,8 @@ module.exports = v = {
     }), _ref) >= 0;
   },
   radio: function(el) {
-    var name;
-    if ((name = el.name)) {
-      return $("input[type='radio'][name='" + name + "']").get().some(function(input) {
+    if (el.name) {
+      return $("input[type='radio'][name='" + el.name + "']").get().some(function(input) {
         return input.checked;
       });
     } else {
@@ -311,15 +355,15 @@ module.exports = v = {
     }
   },
   checkbox: function(el, minChecked, maxChecked) {
-    var len, name;
+    var len;
     if (minChecked == null) {
       minChecked = 0;
     }
     if (maxChecked == null) {
       maxChecked = 50;
     }
-    if ((name = el.name)) {
-      len = $("input[type='checkbox'][name='" + name + "']").filter(function() {
+    if (el.name) {
+      len = $("input[type='checkbox'][name='" + el.name + "']").filter(function() {
         return $(this).prop("checked");
       }).length;
       return (minChecked <= len && len <= maxChecked);

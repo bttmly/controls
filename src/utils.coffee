@@ -1,4 +1,4 @@
-demethodize: ( fn ) ->
+demethodize = ( fn ) ->
   Function::call.bind( fn )
 
 module.exports = 
