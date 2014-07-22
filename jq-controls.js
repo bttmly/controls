@@ -82,11 +82,11 @@ Controls = (function(_super) {
   }
 
   Controls.prototype.filter = function() {
-    return Controls.__super__.filter.call(this, arguments).controls();
+    return $.fn.filter.apply($(this.get()), arguments).controls();
   };
 
   Controls.prototype.not = function() {
-    return Controls.__super__.not.call(this, arguments).controls();
+    return $.fn.not.apply($(this.get()), arguments).controls();
   };
 
   Controls.prototype.propValues = function(prop) {
@@ -193,13 +193,15 @@ Controls = require("./controls.coffee");
 
 $ = window.jQuery;
 
-CONTROL_TAGS = ["input", "select", "textarea", "button"];
+CONTROL_TAGS = ["input", "select", "textarea", "button"].join(", ");
 
 module.exports = (function() {
   var prevControls;
   prevControls = $.fn.controls;
   $.fn.controls = function() {
-    return new Controls(this.find(CONTROL_TAGS.join(", ")));
+    var method;
+    method = this.length === 1 ? "find" : "filter";
+    return new Controls(this[method](CONTROL_TAGS));
   };
   $.fn.controls.noConflict = function() {
     $.fn.controls = prevControls;
@@ -210,11 +212,11 @@ module.exports = (function() {
 
 
 },{"./controls.coffee":1}],4:[function(require,module,exports){
-var getArgs, getMethod, isValid, jQuery, splitMethods, validations;
+var $, getArgs, getMethod, isValid, jQuery, splitMethods, validations;
 
 validations = require("./validations.coffee");
 
-jQuery = window.jQuery;
+$ = jQuery = window.jQuery;
 
 splitMethods = function(str) {
   return str != null ? str.split("&&").map(function(m) {
@@ -287,9 +289,9 @@ demethodize = function(fn) {
 };
 
 module.exports = {
-  map: demethodize([].map),
-  slice: demethodize([].slice),
-  reduce: demethodize([].reduce),
+  map: demethodize(Array.prototype.map),
+  slice: demethodize(Array.prototype.slice),
+  reduce: demethodize(Array.prototype.reduce),
   objMap: function(obj, callback) {
     var key, result, value;
     result = {};

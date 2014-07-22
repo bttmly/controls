@@ -1,5 +1,5 @@
 validations = require "./validations.coffee"
-jQuery = window.jQuery
+$ = jQuery = window.jQuery
 
 # matches method calls
 # splitMethods( "lengthMin( 8 ) && lengthMax( 12 )" ) => ["lengthMin( 8 )", "lengthMax( 12 )"]

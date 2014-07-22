@@ -5219,7 +5219,7 @@ process.chdir = function (dir) {
 };
 
 },{}],37:[function(require,module,exports){
-var $, Control, Promise, Values, assert, expect, htmlFiles, jQuery, should, trees, utils;
+var $, Control, Promise, Values, assert, expect, htmlFiles, jQuery, sameSelection, should, trees, utils;
 
 Promise = require("bluebird");
 
@@ -5230,6 +5230,8 @@ Control = $.Control;
 Values = $.Values;
 
 utils = require("./spec-utilities.coffee");
+
+sameSelection = utils.areSameSelection;
 
 assert = chai.assert;
 
@@ -5253,7 +5255,11 @@ trees.byId = function(id) {
 htmlFiles = ["./spec/html/values.html", "./spec/html/mixed.html"];
 
 Promise.all(htmlFiles.map($.get).map(Promise.resolve)).then(function(data) {
+  var cF, cSel, jSel;
   [].push.apply(trees, data.map($));
+  cSel = trees.byId("values").controls();
+  jSel = trees.byId("values");
+  cF = cSel.filter("button");
   return mocha.run();
 });
 
@@ -5266,15 +5272,18 @@ describe("jQuery.fn.controls()", function() {
       var cSel, jSel;
       cSel = trees.byId("values").controls();
       jSel = trees.byId("values").find("input, button, select");
-      console.log(cSel);
-      console.log(jSel);
       return expect(utils.areSameSelection(cSel, jSel)).to.equal(true);
     });
   });
 });
 
 describe("Control prototype methods", function() {
-  describe("@filter()", function() {});
+  var cSel, jSel;
+  cSel = void 0;
+  jSel = void 0;
+  describe("@filter()", function() {
+    return it("works", function() {});
+  });
   describe("@not()", function() {});
   describe("@propValues()", function() {});
   describe("@values()", function() {});

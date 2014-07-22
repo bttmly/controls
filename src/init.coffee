@@ -1,14 +1,15 @@
 Controls = require "./controls.coffee"
 $ = window.jQuery
 
-CONTROL_TAGS = [ "input", "select", "textarea", "button" ]
+CONTROL_TAGS = [ "input", "select", "textarea", "button" ].join ", "
 
 module.exports = do ->
 
   prevControls = $.fn.controls
 
   $.fn.controls = ->
-    new Controls @find CONTROL_TAGS.join ", "
+    method = if @length is 1 then "find" else "filter"
+    new Controls @[method] CONTROL_TAGS
 
   $.fn.controls.noConflict = ->
     $.fn.controls = prevControls

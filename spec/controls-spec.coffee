@@ -8,6 +8,8 @@ Values = $.Values
 
 utils = require "./spec-utilities.coffee"
 
+sameSelection = utils.areSameSelection
+
 assert = chai.assert
 expect = chai.expect
 should = chai.should()
@@ -31,6 +33,10 @@ Promise.all(
   .map Promise.resolve  
 ).then ( data ) ->
   [].push.apply trees, data.map $
+  cSel = trees.byId( "values" ).controls()
+  jSel = trees.byId( "values" )
+  cF = cSel.filter "button"
+  
   mocha.run()
 
 describe "jQuery.fn.controls()", ->
@@ -42,18 +48,25 @@ describe "jQuery.fn.controls()", ->
     it "works", ->
       cSel = trees.byId( "values" ).controls()
       jSel = trees.byId( "values" ).find "input, button, select"
-
-      console.log cSel
-      console.log jSel
-
-
       expect( utils.areSameSelection cSel, jSel ).to.equal true
 
   # it "produces Control objects"
 
 describe "Control prototype methods", ->
 
+  cSel = undefined
+  jSel = undefined
+
+  # beforeEach ->
+  # cSel = trees.byId( "values" ).controls()
+  # jSel = trees.byId( "values" )
+  # cF = cSel.filter "button"
+
   describe "@filter()", ->
+    it "works", ->
+
+
+      # expect( sameSelection cF, jF ).to.equal true
 
   describe "@not()", ->
 

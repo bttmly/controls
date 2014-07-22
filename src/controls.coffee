@@ -51,11 +51,12 @@ class Controls extends jQuery
             else
               null
       ).call $ el
+      
   filter: ->
-    super( arguments ).controls()
+    $.fn.filter.apply( $( @get() ), arguments ).controls()
 
   not: ->
-    super( arguments ).controls()
+    $.fn.not.apply( $( @get() ), arguments ).controls()
 
   propValues: ( prop ) ->
     new Values propMap @, @idProp, prop
