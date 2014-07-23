@@ -2,14 +2,15 @@ require "./matches-polyfill.coffee"
 Values = require "./values.coffee"
 isValid = require "./is-valid.coffee"
 getValue = require( "./get-value.coffee" ).getValueMappable
-{ map, reduce } = require "./utils.coffee"
+{ map, reduce, each, every } = require "./utils.coffee"
 
 $ = jQuery = window.jQuery
 CHECKABLE = "input[type='radio'], input[type='checkbox']"
 BUTTON = "input[type='button'], button"
+TAGS = "input, select, button, textarea"
 
-qsa = ( selector, context = document ) ->
-  [].slice.call context.querySelectorAll selector
+# qsa = ( selector, context = document ) ->
+#   [].slice.call context.querySelectorAll selector
 
 propMap = ( jqCollection, keyProp, valProp ) ->
   jqCollection.get().reduce ( acc, el, i, arr ) ->
@@ -26,7 +27,7 @@ class Controls extends jQuery
 
   # maybe we should filter for control tags in here.
   constructor: ( nodes, opt = {} ) ->
-    if not @ instanceof Controls or not nodes
+    unless @ instanceof Controls and nodes
       return new Controls $ ""
     jQuery.fn.init.call @, nodes
     @identifyingProp = opt.idProp or "id"
@@ -42,16 +43,14 @@ class Controls extends jQuery
     # set initial state data
     # refer to jq attr/prop to make this easier
     @each ( i, el ) ->
-      data =
-        disabled: Boolean @disabled
-        required: Boolean @required
-        value: String do =>
+      $.data @, "resetState",
+        disabled: @disabled
+        required: @required
+        value: do =>
           if @matches CHECKABLE
             @checked
           else if @matches "select"
-            # qsa( "option", @ ).map ( el ) ->
-            #   el.value || el.innerHTML
-            qsa( "option", @ ).reduce ( acc, el ) ->
+            reduce @querySelectorAll( "option" ), ( acc, el ) ->
               if el.selected is true
                 acc.push el.value or el.innerHTML
               acc
@@ -60,7 +59,6 @@ class Controls extends jQuery
             @value
           else
             null
-      $.data @, "resetState", data
       
   filter: ( param ) ->
     $.fn.filter.call( @, param )
@@ -84,7 +82,7 @@ class Controls extends jQuery
       if @matches CHECKABLE
         @checked = data.value
       else if @matches "select"
-        qsa( "option", @ ).forEach ( el ) =>
+        each @querySelectorAll( "option" ), ( el ) =>
           if el.value in data.value
             el.selected = true
       else if @matches "input"
@@ -111,12 +109,7 @@ class Controls extends jQuery
   selects: -> @filter "select"
   ofType: ( type ) -> @filter "[type=#{ type }]"
 
-  # array prototype aliases
-  every: ( cb ) ->
-
-  some: -> ( cb ) ->
-
-  valid: -> @every isValid
+  valid: -> every @, isValid
 
   bindValidator: ( fn ) ->
   

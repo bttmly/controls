@@ -26,7 +26,7 @@ getArgs = ( str ) ->
 isValid = ( el, customFn, args... ) ->
   $el = $( el )
   validationAttr = $el.data "control-validation"
-  validationFns = el._controlValidators
+  validationFns = $.data el, "controlValidators"
 
   if customFn and typeof customFn is "function"
     return !!customFn.apply( el, args )

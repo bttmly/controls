@@ -125,24 +125,24 @@ describe("Controls.validateElement()", function() {
     return it("validates against all present attached validators", function() {
       var els;
       els = trees.byId("validation").find(".data-validation");
-      els[0]._controlValidators = [
+      $.data(els[0], "controlValidators", [
         (function() {
           return this.value === "123";
         }), (function() {
           return this.value !== "abc";
         })
-      ];
-      els[1]._controlValidators = [
+      ]);
+      $.data(els[1], "controlValidators", [
         (function() {
           return this.value !== "abc";
         }), (function() {
           return this.value === "abc";
         })
-      ];
+      ]);
       expect(valid(els[0])).to.equal(true);
       expect(valid(els[1])).to.equal(false);
-      delete els[0]._controlValidators;
-      return delete els[1]._controlValidators;
+      $.data(els[0], "controlValidators", "");
+      return $.data(els[1], "controlValidators", "");
     });
   });
 });

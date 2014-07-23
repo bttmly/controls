@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var $, BUTTON, CHECKABLE, Controls, Values, getValue, isValid, jQuery, map, propMap, qsa, reduce, _ref,
+var $, BUTTON, CHECKABLE, Controls, TAGS, Values, each, every, getValue, isValid, jQuery, map, propMap, reduce, _ref,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -12,7 +12,7 @@ isValid = require("./is-valid.coffee");
 
 getValue = require("./get-value.coffee").getValueMappable;
 
-_ref = require("./utils.coffee"), map = _ref.map, reduce = _ref.reduce;
+_ref = require("./utils.coffee"), map = _ref.map, reduce = _ref.reduce, each = _ref.each, every = _ref.every;
 
 $ = jQuery = window.jQuery;
 
@@ -20,12 +20,7 @@ CHECKABLE = "input[type='radio'], input[type='checkbox']";
 
 BUTTON = "input[type='button'], button";
 
-qsa = function(selector, context) {
-  if (context == null) {
-    context = document;
-  }
-  return [].slice.call(context.querySelectorAll(selector));
-};
+TAGS = "input, select, button, textarea";
 
 propMap = function(jqCollection, keyProp, valProp) {
   return jqCollection.get().reduce(function(acc, el, i, arr) {
@@ -48,7 +43,7 @@ Controls = (function(_super) {
     if (opt == null) {
       opt = {};
     }
-    if (!this instanceof Controls || !nodes) {
+    if (!(this instanceof Controls && nodes)) {
       return new Controls($(""));
     }
     jQuery.fn.init.call(this, nodes);
@@ -68,16 +63,15 @@ Controls = (function(_super) {
       };
     })(this));
     this.each(function(i, el) {
-      var data;
-      data = {
-        disabled: Boolean(this.disabled),
-        required: Boolean(this.required),
-        value: String((function(_this) {
+      return $.data(this, "resetState", {
+        disabled: this.disabled,
+        required: this.required,
+        value: (function(_this) {
           return function() {
             if (_this.matches(CHECKABLE)) {
               return _this.checked;
             } else if (_this.matches("select")) {
-              return qsa("option", _this).reduce(function(acc, el) {
+              return reduce(_this.querySelectorAll("option"), function(acc, el) {
                 if (el.selected === true) {
                   acc.push(el.value || el.innerHTML);
                 }
@@ -89,9 +83,8 @@ Controls = (function(_super) {
               return null;
             }
           };
-        })(this)())
-      };
-      return $.data(this, "resetState", data);
+        })(this)()
+      });
     });
   }
 
@@ -120,7 +113,7 @@ Controls = (function(_super) {
       if (this.matches(CHECKABLE)) {
         return this.checked = data.value;
       } else if (this.matches("select")) {
-        return qsa("option", this).forEach((function(_this) {
+        return each(this.querySelectorAll("option"), (function(_this) {
           return function(el) {
             var _ref1;
             if (_ref1 = el.value, __indexOf.call(data.value, _ref1) >= 0) {
@@ -182,14 +175,8 @@ Controls = (function(_super) {
     return this.filter("[type=" + type + "]");
   };
 
-  Controls.prototype.every = function(cb) {};
-
-  Controls.prototype.some = function() {
-    return function(cb) {};
-  };
-
   Controls.prototype.valid = function() {
-    return this.every(isValid);
+    return every(this, isValid);
   };
 
   Controls.prototype.bindValidator = function(fn) {};
@@ -307,7 +294,7 @@ isValid = function() {
   el = arguments[0], customFn = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
   $el = $(el);
   validationAttr = $el.data("control-validation");
-  validationFns = el._controlValidators;
+  validationFns = $.data(el, "controlValidators");
   if (customFn && typeof customFn === "function") {
     return !!customFn.apply(el, args);
   } else if (validationFns != null ? validationFns.length : void 0) {
@@ -362,16 +349,15 @@ module.exports = (function() {
 
 
 },{}],7:[function(require,module,exports){
-var demethodize;
+var arrayMethods, demethodize, method, utils, _fn, _i, _len;
 
 demethodize = function(fn) {
   return Function.prototype.call.bind(fn);
 };
 
-module.exports = {
-  map: demethodize(Array.prototype.map),
-  slice: demethodize(Array.prototype.slice),
-  reduce: demethodize(Array.prototype.reduce),
+arrayMethods = ["map", "some", "every", "slice", "filter", "reduce", "forEach"];
+
+utils = {
   objMap: function(obj, callback) {
     var key, result, value;
     result = {};
@@ -382,6 +368,18 @@ module.exports = {
     return result;
   }
 };
+
+_fn = function(method) {
+  return utils[method] = demethodize(Array.prototype[method]);
+};
+for (_i = 0, _len = arrayMethods.length; _i < _len; _i++) {
+  method = arrayMethods[_i];
+  _fn(method);
+}
+
+utils.each = utils.forEach;
+
+module.exports = utils;
 
 
 },{}],8:[function(require,module,exports){
