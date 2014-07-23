@@ -1,8 +1,9 @@
 module.exports =
-  areSameSelection: ( jqObjA, jqObjB ) ->
-    return false unless jqObjA.length is jqObjB.length
-    arrA = $.unique do jqObjA.get 
-    arrB = $.unique do jqObjB.get
+  areSameSelection: ( objA, objB ) ->
+    return false unless objA.length is objB.length
+    slice = Function::call.bind Array::slice
+    arrA = $.unique slice objA
+    arrB = $.unique slice objB
     arrA.every ( el ) ->
       el in arrB
 

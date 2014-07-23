@@ -1,93 +1,100 @@
 { slice } = require "./utils.coffee"
 
-testEl = document.createElement "input"
+$ = jQuery = window.jQuery
+document = window.document
 
-html5Validation = ( inputType, value ) ->
-  testEl.type = inputType
-  testEl.value = value
-  testEl.validity.valid
+html5Validation = do ->
+  testEl = document.createElement "input"
+  ( inputType, value ) ->
+    testEl.type = inputType
+    testEl.value = value
+    testEl.validity.valid
+
+typeRadio = "[type='radio']"
+typeCheck = "[type='checkbox']"
 
 module.exports = v =
 
-  notEmpty: ( el ) -> !!el.value
+  notEmpty: -> !!@value
 
-  notEmptyTrim: ( el ) -> !!el.value.trim()
+  notEmptyTrim: -> !!@value.trim()
 
-  numeric: ( el ) -> /^\d+$/.test el.value
+  numeric: -> /^\d+$/.test @value
 
-  alphanumeric: ( el ) -> /^[a-z0-9]+$/i.test el.value
+  alphanumeric: -> /^[a-z0-9]+$/i.test @value
 
-  letters: ( el ) -> /^[a-z]+$/i.test el.value
+  letters: -> /^[a-z]+$/i.test @value
 
-  isValue: ( el, value  ) -> String( el.value ) is String( value )
+  isValue: ( value  ) -> String( @value ) is String( value )
 
-  phone: ( el ) -> @allowed el, "1234567890()-+# " 
+  phone: -> v.allowed.call @, "1234567890()-+# "
 
   # .email() and .url() will throw in IE < 9 http://api.jquery.com/attr/
-  email: ( el ) ->
-    return false if not @notEmptyTrim( el )
-    html5Validation( "email", el.value )
+  email: ->
+    return false if not v.notEmptyTrim @
+    html5Validation( "email", @value )
 
-  url: ( el ) ->
-    return false if not @notEmptyTrim( el )
-    html5Validation( "url", el.value )
+  url: ->
+    return false if not v.notEmptyTrim @
+    html5Validation( "url", @value )
 
-  list: ( el ) ->
-    el.value in slice( el.list.options or [] ).map ( option ) ->
+  list: ->
+    @value in slice( @list.options or [] ).map ( option ) ->
       option.value or option.innerHTML
 
-  radio: ( el ) ->
-    if ( el.name )
-      return $( "input[type='radio'][name='#{ el.name }']" ).get().some ( input ) -> input.checked
+  radio: ->
+    if ( @name )
+      $( "#{ typeRadio }[name='#{ @name }']" ).get()
+        .some ( input ) -> input.checked
     # false for unnamed elements
     else
       false
 
-  checkbox: ( el, minChecked = 0, maxChecked = 50 ) ->
-    if ( el.name )
-      len = $( "input[type='checkbox'][name='#{ el.name }']" ).filter -> 
+  checkbox: ( minChecked = 0, maxChecked = 50 ) ->
+    if ( @name )
+      len = $( "#{ typeCheck }[name='#{ @name }']" ).filter -> 
         $( this ).prop "checked"
       .length
-      return minChecked <= len <= maxChecked
+      minChecked <= len <= maxChecked
     # true for unnamed elements
     else
       true
 
-  select: ( el, min = 1, max = 1 ) ->
-    selected = filter el, ( opt ) -> opt.selected and not opt.disabled
+  select: ( min = 1, max = 1 ) ->
+    selected = filter @ ( opt ) -> opt.selected and not opt.disabled
     if min <= selected.length <= max then true else false
 
-  allowed: ( el, allowedChars ) ->
-    allowedChars = allowedChars.split( "" )
-    str = el.value.split( "" )
+  allowed: ( allowedChars ) ->
+    allowedChars = allowedChars.split ""
+    str = @value.split ""
     for char in str
       return false if char not in allowedChars
     return true
 
-  notAllowed: ( el, notAllowedChars ) ->
-    notAllowedChars = notAllowedChars.split( "" )
-    str = el.value.split( "" )
+  notAllowed: ( notAllowedChars ) ->
+    notAllowedChars = notAllowedChars.split ""
+    str = @value.split ""
     for char in notAllowedChars
       return false if char in str
     return true
 
-  numberBetween: ( el, min, max ) ->
-    Number( min ) <= Number( el.value ) <= Number( max )
+  numberBetween: ( min, max ) ->
+    Number( min ) <= Number( @value ) <= Number( max )
 
-  numberMax: ( el, max ) ->
-    Number( el.value ) <= Number( max )
+  numberMax: ( max ) ->
+    Number( @value ) <= Number( max )
 
-  numberMin: ( el, min ) ->
-    Number( el.value ) >= Number( min )
+  numberMin: ( min ) ->
+    Number( @value ) >= Number( min )
 
-  lengthBetween: ( el, min, max ) ->
-    Number( min ) <= el.value.length <= Number( max )
+  lengthBetween: ( min, max ) ->
+    Number( min ) <= @value.length <= Number( max )
 
-  lengthMax: ( el, max ) ->
-    el.value.length <= Number( max )
+  lengthMax: ( max ) ->
+    @value.length <= Number( max )
 
-  lengthMin: ( el, min ) ->
-    el.value.length >= Number( min )
+  lengthMin: ( min ) ->
+    @value.length >= Number( min )
 
-  lengthIs: ( el, len ) ->
-    el.value.length is Number( len )
+  lengthIs: ( len ) ->
+    @value.length is Number( len )

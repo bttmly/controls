@@ -10,7 +10,7 @@ BUTTON = "input[type='button'], button"
 propMap = ( jqCollection, keyProp, valProp ) ->
   jqCollection.get().reduce ( acc, el, i, arr ) ->
     if keyProp of el
-      acc.push 
+      acc.push
         id: el[idProp]
         value: el[valProp]
     acc
@@ -18,7 +18,7 @@ propMap = ( jqCollection, keyProp, valProp ) ->
 
 class Controls extends jQuery
 
-  @isValid: isValid
+  @validateElement = isValid
 
   # maybe we should filter for control tags in here.
   constructor: ( nodes, opt = {} ) ->
@@ -36,8 +36,8 @@ class Controls extends jQuery
     # set initial state data
     # refer to jq attr/prop to make this easier
     @each ( i, el ) ->
-      ( -> 
-        @data "initialValue", 
+      ( ->
+        @data "resetState",
           disabled: @prop "disabled"
           required: @prop "required"
           value: do =>
@@ -52,11 +52,11 @@ class Controls extends jQuery
               null
       ).call $ el
       
-  filter: ->
-    $.fn.filter.apply( $( @get() ), arguments ).controls()
+  filter: ( param ) ->
+    @asJQuery().filter( param ).controls()
 
-  not: ->
-    $.fn.not.apply( $( @get() ), arguments ).controls()
+  not: ( param ) ->
+    @asJQuery().not( param ).controls()
 
   propValues: ( prop ) ->
     new Values propMap @, @idProp, prop
@@ -66,15 +66,18 @@ class Controls extends jQuery
 
   reset: ->
     @each ->
-      # reset w .data( "initialState" )
+      resetState = $( @ ).data "resetState"
+      # if resetState
+        #something
     @
 
   clear: ->
-    @filter( "select" ).find( "option" ).removeAttr "selected" 
-    @filter( CHECKABLE ).removeAttr "checked" 
-    @not( CHECKABLE ).val "" 
+    @filter( "select" ).find( "option" ).removeAttr "selected"
+    @filter( CHECKABLE ).removeAttr "checked"
+    @not( CHECKABLE ).val ""
     @
 
+  # common attr convenience methods
   check: -> @attr "checked", "checked"
   uncheck: -> @removeAttr "checked"
   require: -> @attr "required", "required"
@@ -82,10 +85,19 @@ class Controls extends jQuery
   disable: -> @attr "disabled", "disabled"
   enable: -> @removeAttr "disabled"
 
-  valid: ->
-    @get().every isValid
+  # common filter convenience methods
+  buttons: -> @filter "button"
+  inputs: -> @filter "input"
+  selects: -> @filter "select"
+  ofType: ( type ) -> @filter "[type=#{ type }]"
 
-  bindValidator = ( fn ) ->
+  # array prototype aliases
+  every: -> Array::every.apply @, arguments
+  some: -> Array::some.apply @, arguments
+
+  valid: -> @every isValid
+
+  bindValidator: ( fn ) ->
     
     # using .data() add a validation function to the element
   
@@ -93,5 +105,8 @@ class Controls extends jQuery
     reduce @, ( acc, el ) ->
       acc.add( el.labels )
     , do $
+
+  asJQuery: ->
+    $ @get()
 
 module.exports = Controls

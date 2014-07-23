@@ -1,46 +1,46 @@
-class Values extends Array
-  constructor: ( items ) ->
-    throw new TypeError() unless Array.isArray items
-    @push.apply @, items
+  class Values extends Array
+    constructor: ( items ) ->
+      throw new TypeError() unless Array.isArray items
+      @push.apply @, items
 
-  normal: ->
-    [].concat @
+    normal: ->
+      [].concat @
 
-  valueArray: ->
-    @map ( pair ) -> pair.value
+    valueArray: ->
+      @map ( pair ) -> pair.value
 
-  idArray: ->
-    @map ( pair ) -> pair.id
+    idArray: ->
+      @map ( pair ) -> pair.id
 
-  idValuePair: ->
-    pairs = {}
-    pairs[ pair.id ] = pair.value for pair in @
-    pairs
+    idValuePair: ->
+      pairs = {}
+      pairs[ pair.id ] = pair.value for pair in @
+      pairs
 
-  valueString: ( delimiter = ", " ) ->
-    @valueArray().join( delimiter )
+    valueString: ( delimiter = ", " ) ->
+      @valueArray().join( delimiter )
 
-  valueArrayOne: ->
-    values = @valueArray()
-    if values.length > 1 then values else values[0]
+    valueArrayOne: ->
+      values = @valueArray()
+      if values.length > 1 then values else values[0]
 
-  idArrayOne: ->
-    values = @idArray()
-    if values.length > 1 then values else values[0]
-  
-  at: ( i ) -> 
-    if isNaN Number i
-      @idValuePair()[i]
-    else
-      @[i].value
+    idArrayOne: ->
+      values = @idArray()
+      if values.length > 1 then values else values[0]
+    
+    at: ( i ) ->
+      if isNaN Number i
+        @idValuePair()[i]
+      else
+        @[i].value
 
-  first: -> 
-    @at 0
+    first: ->
+      @at 0
 
-  last: -> 
-    @at @length - 1
+    last: ->
+      @at @length - 1
 
-  serialize: -> JSON.stringify @normal()
+    serialize: -> JSON.stringify @normal()
 
 
-module.exports = Values
+  module.exports = Values

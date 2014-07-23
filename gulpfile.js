@@ -1,9 +1,16 @@
-var gulp = require('gulp');
-var gutil = require('gulp-util');
-var source = require('vinyl-source-stream');
-var watchify = require('watchify');
+var gulp = require( 'gulp' );
+var coffeelint = require( 'gulp-coffeelint' );
+var gutil = require( 'gulp-util' );
+var source = require( 'vinyl-source-stream' );
+var watchify = require( 'watchify' );
 
-gulp.task('watch', function() {
+gulp.task( 'coffeelint', function() {
+  gulp.src([ "./src/*.coffee", "./spec/*.coffee" ])
+    .pipe( coffeelint() )
+    .pipe( coffeelint.reporter() );
+});
+
+gulp.task( 'watch', function() {
 
   var items = [
     {

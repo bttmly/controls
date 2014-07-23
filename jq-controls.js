@@ -30,11 +30,9 @@ propMap = function(jqCollection, keyProp, valProp) {
 };
 
 Controls = (function(_super) {
-  var bindValidator;
-
   __extends(Controls, _super);
 
-  Controls.isValid = isValid;
+  Controls.validateElement = isValid;
 
   function Controls(nodes, opt) {
     if (opt == null) {
@@ -58,7 +56,7 @@ Controls = (function(_super) {
     })(this));
     this.each(function(i, el) {
       return (function() {
-        return this.data("initialValue", {
+        return this.data("resetState", {
           disabled: this.prop("disabled"),
           required: this.prop("required"),
           value: (function(_this) {
@@ -81,12 +79,12 @@ Controls = (function(_super) {
     });
   }
 
-  Controls.prototype.filter = function() {
-    return $.fn.filter.apply($(this.get()), arguments).controls();
+  Controls.prototype.filter = function(param) {
+    return this.asJQuery().filter(param).controls();
   };
 
-  Controls.prototype.not = function() {
-    return $.fn.not.apply($(this.get()), arguments).controls();
+  Controls.prototype.not = function(param) {
+    return this.asJQuery().not(param).controls();
   };
 
   Controls.prototype.propValues = function(prop) {
@@ -98,7 +96,10 @@ Controls = (function(_super) {
   };
 
   Controls.prototype.reset = function() {
-    this.each(function() {});
+    this.each(function() {
+      var resetState;
+      return resetState = $(this).data("resetState");
+    });
     return this;
   };
 
@@ -133,16 +134,44 @@ Controls = (function(_super) {
     return this.removeAttr("disabled");
   };
 
-  Controls.prototype.valid = function() {
-    return this.get().every(isValid);
+  Controls.prototype.buttons = function() {
+    return this.filter("button");
   };
 
-  bindValidator = function(fn) {};
+  Controls.prototype.inputs = function() {
+    return this.filter("input");
+  };
+
+  Controls.prototype.selects = function() {
+    return this.filter("select");
+  };
+
+  Controls.prototype.ofType = function(type) {
+    return this.filter("[type=" + type + "]");
+  };
+
+  Controls.prototype.every = function() {
+    return Array.prototype.every.apply(this, arguments);
+  };
+
+  Controls.prototype.some = function() {
+    return Array.prototype.some.apply(this, arguments);
+  };
+
+  Controls.prototype.valid = function() {
+    return this.every(isValid);
+  };
+
+  Controls.prototype.bindValidator = function(fn) {};
 
   Controls.prototype.labels = function() {
     return reduce(this, function(acc, el) {
       return acc.add(el.labels);
     }, $());
+  };
+
+  Controls.prototype.asJQuery = function() {
+    return $(this.get());
   };
 
   return Controls;
@@ -212,7 +241,8 @@ module.exports = (function() {
 
 
 },{"./controls.coffee":1}],4:[function(require,module,exports){
-var $, getArgs, getMethod, isValid, jQuery, splitMethods, validations;
+var $, getArgs, getMethod, isValid, jQuery, splitMethods, validations,
+  __slice = [].slice;
 
 validations = require("./validations.coffee");
 
@@ -235,36 +265,32 @@ getArgs = function(str) {
   }) : void 0 : void 0;
 };
 
-isValid = function(el, customFn) {
-  var $el, validationAttr, validationFns;
+isValid = function() {
+  var $el, args, customFn, el, validationAttr, validationFns, validators;
+  el = arguments[0], customFn = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
   $el = $(el);
   validationAttr = $el.data("control-validation");
   validationFns = $el.data("validators");
   if (customFn && typeof customFn === "function") {
-    console.log("a");
-    return !!customFn(el);
+    return !!customFn.apply(el, args);
   } else if (validationFns) {
-    console.log("b");
     return validationFns.every(function(fn) {
       return fn(el);
     });
   } else if (validationAttr) {
-    console.log("c");
-    validations = splitMethods(validationAttr).map(function(fnCallStr) {
-      var obj;
-      obj = {};
-      obj.method = getMethod(fnCallStr);
-      obj.args = getArgs(fnCallStr);
-      return obj;
+    validators = splitMethods(validationAttr).map(function(fnCallStr) {
+      return {
+        method: getMethod(fnCallStr),
+        args: getArgs(fnCallStr)
+      };
     });
-    return validations.every(function(callDesc) {
-      if (!(callDesc.method in validations)) {
+    return validators.every(function(callDesc) {
+      if (!("method" in callDesc)) {
         return false;
       }
-      return validations[callDesc.method].apply(null, [el].concat(callDesc.args));
+      return validations[callDesc.method].apply(el, args);
     });
   } else {
-    console.log("d");
     return el.validity.valid;
   }
 };
@@ -305,69 +331,79 @@ module.exports = {
 
 
 },{}],7:[function(require,module,exports){
-var html5Validation, slice, testEl, v,
+var $, document, html5Validation, jQuery, slice, typeCheck, typeRadio, v,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 slice = require("./utils.coffee").slice;
 
-testEl = document.createElement("input");
+$ = jQuery = window.jQuery;
 
-html5Validation = function(inputType, value) {
-  testEl.type = inputType;
-  testEl.value = value;
-  return testEl.validity.valid;
-};
+document = window.document;
+
+html5Validation = (function() {
+  var testEl;
+  testEl = document.createElement("input");
+  return function(inputType, value) {
+    testEl.type = inputType;
+    testEl.value = value;
+    return testEl.validity.valid;
+  };
+})();
+
+typeRadio = "[type='radio']";
+
+typeCheck = "[type='checkbox']";
 
 module.exports = v = {
-  notEmpty: function(el) {
-    return !!el.value;
+  notEmpty: function() {
+    return !!this.value;
   },
-  notEmptyTrim: function(el) {
-    return !!el.value.trim();
+  notEmptyTrim: function() {
+    return !!this.value.trim();
   },
-  numeric: function(el) {
-    return /^\d+$/.test(el.value);
+  numeric: function() {
+    return /^\d+$/.test(this.value);
   },
-  alphanumeric: function(el) {
-    return /^[a-z0-9]+$/i.test(el.value);
+  alphanumeric: function() {
+    return /^[a-z0-9]+$/i.test(this.value);
   },
-  letters: function(el) {
-    return /^[a-z]+$/i.test(el.value);
+  letters: function() {
+    return /^[a-z]+$/i.test(this.value);
   },
-  isValue: function(el, value) {
-    return String(el.value) === String(value);
+  isValue: function(value) {
+    return String(this.value) === String(value);
   },
-  phone: function(el) {
-    return this.allowed(el, "1234567890()-+# ");
+  phone: function() {
+    return v.allowed.call(this, "1234567890()-+# ");
   },
-  email: function(el) {
-    if (!this.notEmptyTrim(el)) {
+  email: function() {
+    if (!v.notEmptyTrim(this)) {
       return false;
     }
-    return html5Validation("email", el.value);
+    return html5Validation("email", this.value);
   },
-  url: function(el) {
-    if (!this.notEmptyTrim(el)) {
+  url: function() {
+    if (!v.notEmptyTrim(this)) {
       return false;
     }
-    return html5Validation("url", el.value);
+    return html5Validation("url", this.value);
   },
-  list: function(el) {
+  list: function() {
     var _ref;
-    return _ref = el.value, __indexOf.call(slice(el.list.options || []).map(function(option) {
+    return _ref = this.value, __indexOf.call(slice(this.list.options || []).map(function(option) {
       return option.value || option.innerHTML;
     }), _ref) >= 0;
   },
-  radio: function(el) {
-    if (el.name) {
-      return $("input[type='radio'][name='" + el.name + "']").get().some(function(input) {
+  radio: function() {
+    if (this.name) {
+      return $("" + typeRadio + "[name='" + this.name + "']").get().some(function(input) {
         return input.checked;
       });
     } else {
       return false;
     }
   },
-  checkbox: function(el, minChecked, maxChecked) {
+  checkbox: function(minChecked, maxChecked) {
     var len;
     if (minChecked == null) {
       minChecked = 0;
@@ -375,8 +411,8 @@ module.exports = v = {
     if (maxChecked == null) {
       maxChecked = 50;
     }
-    if (el.name) {
-      len = $("input[type='checkbox'][name='" + el.name + "']").filter(function() {
+    if (this.name) {
+      len = $("" + typeCheck + "[name='" + this.name + "']").filter(function() {
         return $(this).prop("checked");
       }).length;
       return (minChecked <= len && len <= maxChecked);
@@ -384,7 +420,7 @@ module.exports = v = {
       return true;
     }
   },
-  select: function(el, min, max) {
+  select: function(min, max) {
     var selected, _ref;
     if (min == null) {
       min = 1;
@@ -392,19 +428,19 @@ module.exports = v = {
     if (max == null) {
       max = 1;
     }
-    selected = filter(el, function(opt) {
+    selected = filter(this(function(opt) {
       return opt.selected && !opt.disabled;
-    });
+    }));
     if ((min <= (_ref = selected.length) && _ref <= max)) {
       return true;
     } else {
       return false;
     }
   },
-  allowed: function(el, allowedChars) {
+  allowed: function(allowedChars) {
     var char, str, _i, _len;
     allowedChars = allowedChars.split("");
-    str = el.value.split("");
+    str = this.value.split("");
     for (_i = 0, _len = str.length; _i < _len; _i++) {
       char = str[_i];
       if (__indexOf.call(allowedChars, char) < 0) {
@@ -413,10 +449,10 @@ module.exports = v = {
     }
     return true;
   },
-  notAllowed: function(el, notAllowedChars) {
+  notAllowed: function(notAllowedChars) {
     var char, str, _i, _len;
     notAllowedChars = notAllowedChars.split("");
-    str = el.value.split("");
+    str = this.value.split("");
     for (_i = 0, _len = notAllowedChars.length; _i < _len; _i++) {
       char = notAllowedChars[_i];
       if (__indexOf.call(str, char) >= 0) {
@@ -425,28 +461,28 @@ module.exports = v = {
     }
     return true;
   },
-  numberBetween: function(el, min, max) {
+  numberBetween: function(min, max) {
     var _ref;
-    return (Number(min) <= (_ref = Number(el.value)) && _ref <= Number(max));
+    return (Number(min) <= (_ref = Number(this.value)) && _ref <= Number(max));
   },
-  numberMax: function(el, max) {
-    return Number(el.value) <= Number(max);
+  numberMax: function(max) {
+    return Number(this.value) <= Number(max);
   },
-  numberMin: function(el, min) {
-    return Number(el.value) >= Number(min);
+  numberMin: function(min) {
+    return Number(this.value) >= Number(min);
   },
-  lengthBetween: function(el, min, max) {
+  lengthBetween: function(min, max) {
     var _ref;
-    return (Number(min) <= (_ref = el.value.length) && _ref <= Number(max));
+    return (Number(min) <= (_ref = this.value.length) && _ref <= Number(max));
   },
-  lengthMax: function(el, max) {
-    return el.value.length <= Number(max);
+  lengthMax: function(max) {
+    return this.value.length <= Number(max);
   },
-  lengthMin: function(el, min) {
-    return el.value.length >= Number(min);
+  lengthMin: function(min) {
+    return this.value.length >= Number(min);
   },
-  lengthIs: function(el, len) {
-    return el.value.length === Number(len);
+  lengthIs: function(len) {
+    return this.value.length === Number(len);
   }
 };
 

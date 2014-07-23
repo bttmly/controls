@@ -1,7 +1,7 @@
 demethodize = ( fn ) ->
   Function::call.bind( fn )
 
-module.exports = 
+module.exports =
   map: demethodize Array::map
   slice: demethodize Array::slice
   reduce: demethodize Array::reduce
