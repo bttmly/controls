@@ -10,7 +10,8 @@ utils = require "./spec-utilities.coffee"
 sameSelection = utils.areSameSelection
 { each, map, reduce, filter, every, some } = require "./array-generics.coffee"
 
-tags = [ "input", "select", "button", "textarea" ].join ", "
+TAGS = [ "input", "select", "button", "textarea" ].join ", "
+CHECKABLE = [ "input[type='checkbox']", "input[type='radio']" ].join ", "
 first = ( arr ) -> arr[0]
 
 trees = window.trees = []
@@ -107,42 +108,41 @@ describe "Control prototype methods", ->
     qsa = Element::querySelectorAll.bind( trees.byId( "values" )[0] )
 
   describe "@filter()", ->
+    it "returns a Controls instance", ->
+      expect( cSel.filter "button" ).to.be.instanceof Controls
+
     it "accepts a selector", ->
-      flt = cSel.filter( "button" )
-      btn = jSel.find( "button" )
+      flt = cSel.filter "button"
+      btn = jSel.find "button"
       expect( sameSelection flt, btn ).to.equal true
-      expect( btn ).to.be.instanceof jQuery
-      expect( flt ).to.be.instanceof Controls
 
     it "accepts an array of DOM elements", ->
       btn = qsa "button"
-      flt = cSel.filter( "button" )
+      flt = cSel.filter "button"
       expect( sameSelection flt, btn ).to.equal true
-      expect( flt ).to.be.instanceof Controls
 
     it "accepts a function", ->
       flt = cSel.filter ->
         @tagName.toLowerCase() is "button"
       btn = qsa "button"
       expect( sameSelection flt, btn ).to.equal true
-      expect( flt ).to.be.instanceof Controls
 
     it "accepts a jQuery selection", ->
       btn = jSel.find "button"
       flt = cSel.filter btn
       expect( sameSelection flt, btn ).to.equal true
-      expect( flt ).to.be.instanceof Controls
-      expect( btn ).to.be.instanceof jQuery
 
     xit "accepts a Controls selection"
 
   describe "@not()", ->
+
+    it "returns a Controls instance", ->
+      expect( cSel.not "input" ).to.be.instanceof Controls
+
     it "accepts a selector", ->
-      jNoInput = jSel.find( tags ).not "input"
+      jNoInput = jSel.find( TAGS ).not "input"
       cNoInput = cSel.not "input"
       expect( sameSelection jNoInput, cNoInput ).to.equal true
-      expect( cNoInput ).to.be.instanceof Controls
-      expect( jNoInput ).to.be.instanceof jQuery
 
     it "accepts an array of DOM elements", ->
       inputs = jSel.find( "input" ).get()
@@ -154,7 +154,7 @@ describe "Control prototype methods", ->
     it "accepts a function", ->
       cEmptyValue = cSel.not ->
         @value is ""
-      vEmptyValue = filter qsa( tags ), ( el ) ->
+      vEmptyValue = filter qsa( TAGS ), ( el ) ->
         el.value isnt ""
       expect( sameSelection cEmptyValue, vEmptyValue ).to.equal true
 
@@ -195,7 +195,19 @@ describe "Control prototype methods", ->
       expect( t4.disabled ).to.equal true
 
   describe "@clear()", ->
-
+    it "clears values, checked, and selected", ->
+      els = trees.byId "initialState"
+      ctls = els.controls()
+      ctls.clear()
+      expect( every ctls.filter( "[type='text']" ), ( el ) ->
+        el.value is ""
+      ).to.equal true
+      expect( every ctls.filter( CHECKABLE ), ( el ) ->
+        el.checked is false
+      )
+      expect( every ctls.asJQuery().find( "option" ), ( el ) ->
+        el.selected is false
+      )
 
   describe "@propValues()", ->
 

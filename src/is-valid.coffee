@@ -21,7 +21,7 @@ getArgs = ( str ) ->
   str?.match( /\(([^)]+)\)/ )?[ 1 ]
     .split ","
     .map ( arg ) ->
-      arg?.trim().replace(/'/g, "")
+      arg?.trim().replace /'/g, ""
 
 isValid = ( el, customFn, args... ) ->
   $el = $( el )

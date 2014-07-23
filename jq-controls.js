@@ -48,6 +48,9 @@ Controls = (function(_super) {
     if (opt == null) {
       opt = {};
     }
+    if (!this instanceof Controls || !nodes) {
+      return new Controls($(""));
+    }
     jQuery.fn.init.call(this, nodes);
     this.identifyingProp = opt.idProp || "id";
     this.isValid = this.valid();
@@ -88,16 +91,16 @@ Controls = (function(_super) {
           };
         })(this)())
       };
-      return this._resetState = data;
+      return $.data(this, "resetState", data);
     });
   }
 
   Controls.prototype.filter = function(param) {
-    return this.asJQuery().filter(param).controls();
+    return $.fn.filter.call(this, param);
   };
 
   Controls.prototype.not = function(param) {
-    return this.asJQuery().not(param).controls();
+    return $.fn.not.call(this, param);
   };
 
   Controls.prototype.propValues = function(prop) {
@@ -110,24 +113,23 @@ Controls = (function(_super) {
 
   Controls.prototype.reset = function() {
     this.each(function() {
-      console.log(this);
-      this.required = this._resetState.required;
-      this.disabled = this._resetState.disabled;
+      var data;
+      data = $.data(this, "resetState");
+      this.required = data.required;
+      this.disabled = data.disabled;
       if (this.matches(CHECKABLE)) {
-        return this.checked = this._resetState.value;
+        return this.checked = data.value;
       } else if (this.matches("select")) {
         return qsa("option", this).forEach((function(_this) {
           return function(el) {
             var _ref1;
-            if (_ref1 = el.value, __indexOf.call(_this._resetState.value, _ref1) >= 0) {
+            if (_ref1 = el.value, __indexOf.call(data.value, _ref1) >= 0) {
               return el.selected = true;
             }
           };
         })(this));
       } else if (this.matches("input")) {
-        return this.value = this._resetState.value;
-      } else {
-
+        return this.value = data.value;
       }
     });
     return this;
@@ -180,12 +182,10 @@ Controls = (function(_super) {
     return this.filter("[type=" + type + "]");
   };
 
-  Controls.prototype.every = function() {
-    return Array.prototype.every.apply(this, arguments);
-  };
+  Controls.prototype.every = function(cb) {};
 
   Controls.prototype.some = function() {
-    return Array.prototype.some.apply(this, arguments);
+    return function(cb) {};
   };
 
   Controls.prototype.valid = function() {

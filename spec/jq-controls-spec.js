@@ -16,7 +16,7 @@ module.exports = {
 
 
 },{}],2:[function(require,module,exports){
-var $, Controls, Values, assert, chai, each, every, expect, filter, first, htmlFiles, jQuery, map, reduce, sameSelection, should, some, tags, trees, utils, _ref,
+var $, CHECKABLE, Controls, TAGS, Values, assert, chai, each, every, expect, filter, first, htmlFiles, jQuery, map, reduce, sameSelection, should, some, trees, utils, _ref,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 $ = jQuery = window.jQuery;
@@ -39,7 +39,9 @@ sameSelection = utils.areSameSelection;
 
 _ref = require("./array-generics.coffee"), each = _ref.each, map = _ref.map, reduce = _ref.reduce, filter = _ref.filter, every = _ref.every, some = _ref.some;
 
-tags = ["input", "select", "button", "textarea"].join(", ");
+TAGS = ["input", "select", "button", "textarea"].join(", ");
+
+CHECKABLE = ["input[type='checkbox']", "input[type='radio']"].join(", ");
 
 first = function(arr) {
   return arr[0];
@@ -157,20 +159,20 @@ describe("Control prototype methods", function() {
     return qsa = Element.prototype.querySelectorAll.bind(trees.byId("values")[0]);
   });
   describe("@filter()", function() {
+    it("returns a Controls instance", function() {
+      return expect(cSel.filter("button")).to.be["instanceof"](Controls);
+    });
     it("accepts a selector", function() {
       var btn, flt;
       flt = cSel.filter("button");
       btn = jSel.find("button");
-      expect(sameSelection(flt, btn)).to.equal(true);
-      expect(btn).to.be["instanceof"](jQuery);
-      return expect(flt).to.be["instanceof"](Controls);
+      return expect(sameSelection(flt, btn)).to.equal(true);
     });
     it("accepts an array of DOM elements", function() {
       var btn, flt;
       btn = qsa("button");
       flt = cSel.filter("button");
-      expect(sameSelection(flt, btn)).to.equal(true);
-      return expect(flt).to.be["instanceof"](Controls);
+      return expect(sameSelection(flt, btn)).to.equal(true);
     });
     it("accepts a function", function() {
       var btn, flt;
@@ -178,27 +180,25 @@ describe("Control prototype methods", function() {
         return this.tagName.toLowerCase() === "button";
       });
       btn = qsa("button");
-      expect(sameSelection(flt, btn)).to.equal(true);
-      return expect(flt).to.be["instanceof"](Controls);
+      return expect(sameSelection(flt, btn)).to.equal(true);
     });
     it("accepts a jQuery selection", function() {
       var btn, flt;
       btn = jSel.find("button");
       flt = cSel.filter(btn);
-      expect(sameSelection(flt, btn)).to.equal(true);
-      expect(flt).to.be["instanceof"](Controls);
-      return expect(btn).to.be["instanceof"](jQuery);
+      return expect(sameSelection(flt, btn)).to.equal(true);
     });
     return xit("accepts a Controls selection");
   });
   describe("@not()", function() {
+    it("returns a Controls instance", function() {
+      return expect(cSel.not("input")).to.be["instanceof"](Controls);
+    });
     it("accepts a selector", function() {
       var cNoInput, jNoInput;
-      jNoInput = jSel.find(tags).not("input");
+      jNoInput = jSel.find(TAGS).not("input");
       cNoInput = cSel.not("input");
-      expect(sameSelection(jNoInput, cNoInput)).to.equal(true);
-      expect(cNoInput).to.be["instanceof"](Controls);
-      return expect(jNoInput).to.be["instanceof"](jQuery);
+      return expect(sameSelection(jNoInput, cNoInput)).to.equal(true);
     });
     it("accepts an array of DOM elements", function() {
       var cNoInput, hasAnInput, inputs;
@@ -214,7 +214,7 @@ describe("Control prototype methods", function() {
       cEmptyValue = cSel.not(function() {
         return this.value === "";
       });
-      vEmptyValue = filter(qsa(tags), function(el) {
+      vEmptyValue = filter(qsa(TAGS), function(el) {
         return el.value !== "";
       });
       return expect(sameSelection(cEmptyValue, vEmptyValue)).to.equal(true);
@@ -260,7 +260,23 @@ describe("Control prototype methods", function() {
       return expect(t4.disabled).to.equal(true);
     });
   });
-  describe("@clear()", function() {});
+  describe("@clear()", function() {
+    return it("clears values, checked, and selected", function() {
+      var ctls, els;
+      els = trees.byId("initialState");
+      ctls = els.controls();
+      ctls.clear();
+      expect(every(ctls.filter("[type='text']"), function(el) {
+        return el.value === "";
+      })).to.equal(true);
+      expect(every(ctls.filter(CHECKABLE), function(el) {
+        return el.checked === false;
+      }));
+      return expect(every(ctls.asJQuery().find("option"), function(el) {
+        return el.selected === false;
+      }));
+    });
+  });
   describe("@propValues()", function() {});
   describe("@values()", function() {});
   describe("@check", function() {});

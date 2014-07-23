@@ -26,6 +26,8 @@ class Controls extends jQuery
 
   # maybe we should filter for control tags in here.
   constructor: ( nodes, opt = {} ) ->
+    if not @ instanceof Controls or not nodes
+      return new Controls $ ""
     jQuery.fn.init.call @, nodes
     @identifyingProp = opt.idProp or "id"
     @isValid = @valid()
@@ -58,13 +60,15 @@ class Controls extends jQuery
             @value
           else
             null
-      @_resetState = data
+      $.data @, "resetState", data
       
   filter: ( param ) ->
-    @asJQuery().filter( param ).controls()
+    $.fn.filter.call( @, param )
+    # @asJQuery().filter( param ).controls()
 
   not: ( param ) ->
-    @asJQuery().not( param ).controls()
+    $.fn.not.call( @, param )
+    # @asJQuery().not( param ).controls()
 
   propValues: ( prop ) ->
     new Values propMap @, @idProp, prop
@@ -74,19 +78,17 @@ class Controls extends jQuery
 
   reset: ->
     @each ->
-      console.log @
-      @required = @_resetState.required
-      @disabled = @_resetState.disabled
+      data = $.data( @, "resetState" )
+      @required = data.required
+      @disabled = data.disabled
       if @matches CHECKABLE
-        @checked = @_resetState.value
+        @checked = data.value
       else if @matches "select"
         qsa( "option", @ ).forEach ( el ) =>
-          if el.value in @_resetState.value
+          if el.value in data.value
             el.selected = true
       else if @matches "input"
-        @value = @_resetState.value
-      else
-        # nothing
+        @value = data.value
     @
 
   clear: ->
@@ -110,14 +112,13 @@ class Controls extends jQuery
   ofType: ( type ) -> @filter "[type=#{ type }]"
 
   # array prototype aliases
-  every: -> Array::every.apply @, arguments
-  some: -> Array::some.apply @, arguments
+  every: ( cb ) ->
+
+  some: -> ( cb ) ->
 
   valid: -> @every isValid
 
   bindValidator: ( fn ) ->
-    
-    # using .data() add a validation function to the element
   
   labels: ->
     reduce @, ( acc, el ) ->
