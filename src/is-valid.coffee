@@ -1,6 +1,9 @@
 validations = require "./validations.coffee"
 $ = jQuery = window.jQuery
 
+callOn = ( obj, fn ) ->
+  fn.call( obj )
+
 # matches method calls
 # splitMethods( "lengthMin( 8 ) && lengthMax( 12 )" ) =>
 # ["lengthMin( 8 )", "lengthMax( 12 )"]
@@ -23,12 +26,14 @@ getArgs = ( str ) ->
 isValid = ( el, customFn, args... ) ->
   $el = $( el )
   validationAttr = $el.data "control-validation"
-  validationFns = $el.data "validators"
+  validationFns = el._controlValidators
+
   if customFn and typeof customFn is "function"
     return !!customFn.apply( el, args )
-  else if validationFns
-    return validationFns.every ( fn ) ->
-      fn( el )
+
+  else if validationFns?.length
+    return validationFns.every callOn.bind( null, el )
+
   else if validationAttr
     validators = splitMethods( validationAttr ).map ( fnCallStr ) ->
       method: getMethod( fnCallStr )
@@ -36,6 +41,7 @@ isValid = ( el, customFn, args... ) ->
     return validators.every ( callDesc ) ->
       return false unless "method" of callDesc
       validations[callDesc.method].apply el, args
+
   else
     return el.validity.valid
       

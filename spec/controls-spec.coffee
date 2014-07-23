@@ -76,13 +76,16 @@ describe "Controls.validateElement()", ->
       expect( valid( els[1] ) ).to.equal false
 
   describe "validation against bound validators", ->
-
-    xit "validates against all present attached validators", ->
+    it "validates against all present attached validators", ->
       els = trees.byId( "validation" ).find( ".data-validation" )
-      els.each ->
-        $( @ ).data "validators", [ -> "1" in @value ]
+      els[0]._controlValidators = [( -> @value == "123" ), ( -> @value != "abc" )]
+      els[1]._controlValidators = [( -> @value != "abc" ), ( -> @value == "abc" )]
+      expect( valid( els[0] ) ).to.equal true
+      expect( valid( els[1] ) ).to.equal false
+      delete els[0]._controlValidators
+      delete els[1]._controlValidators
 
-
+  describe "validation with HTML5"
 
 describe "Control prototype methods", ->
 

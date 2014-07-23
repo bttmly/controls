@@ -205,7 +205,7 @@ getValue = function(el) {
     }
   } else if ($el.is("select")) {
     return $el.find(SELECTED).map(function(el) {
-      return el.value || el.innerHTML;
+      return el.value || el.innerHTML || null;
     });
   } else {
     return el.value || null;
@@ -227,10 +227,13 @@ CONTROL_TAGS = ["input", "select", "textarea", "button"].join(", ");
 module.exports = (function() {
   var prevControls;
   prevControls = $.fn.controls;
-  $.fn.controls = function() {
+  $.fn.controls = function(opt) {
     var method;
+    if (opt == null) {
+      opt = {};
+    }
     method = this.length === 1 ? "find" : "filter";
-    return new Controls(this[method](CONTROL_TAGS));
+    return new Controls(this[method](CONTROL_TAGS), opt);
   };
   $.fn.controls.noConflict = function() {
     $.fn.controls = prevControls;
@@ -241,12 +244,16 @@ module.exports = (function() {
 
 
 },{"./controls.coffee":1}],4:[function(require,module,exports){
-var $, getArgs, getMethod, isValid, jQuery, splitMethods, validations,
+var $, callOn, getArgs, getMethod, isValid, jQuery, splitMethods, validations,
   __slice = [].slice;
 
 validations = require("./validations.coffee");
 
 $ = jQuery = window.jQuery;
+
+callOn = function(obj, fn) {
+  return fn.call(obj);
+};
 
 splitMethods = function(str) {
   return str != null ? str.split("&&").map(function(m) {
@@ -270,13 +277,11 @@ isValid = function() {
   el = arguments[0], customFn = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
   $el = $(el);
   validationAttr = $el.data("control-validation");
-  validationFns = $el.data("validators");
+  validationFns = el._controlValidators;
   if (customFn && typeof customFn === "function") {
     return !!customFn.apply(el, args);
-  } else if (validationFns) {
-    return validationFns.every(function(fn) {
-      return fn(el);
-    });
+  } else if (validationFns != null ? validationFns.length : void 0) {
+    return validationFns.every(callOn.bind(null, el));
   } else if (validationAttr) {
     validators = splitMethods(validationAttr).map(function(fnCallStr) {
       return {

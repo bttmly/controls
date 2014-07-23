@@ -11,10 +11,8 @@ getValue = ( el ) ->
   else if $el.is CHECKABLE
     if el.checked then el.value else null
   else if $el.is "select"
-    $el
-    .find SELECTED
-    .map ( el ) ->
-      el.value or el.innerHTML
+    $el.find( SELECTED ).map ( el ) ->
+      el.value or el.innerHTML or null
   else
     el.value or null
 

@@ -119,19 +119,31 @@ describe("Controls.validateElement()", function() {
       return expect(valid(els[1])).to.equal(false);
     });
   });
-  return describe("validation against bound validators", function() {
-    return xit("validates against all present attached validators", function() {
+  describe("validation against bound validators", function() {
+    return it("validates against all present attached validators", function() {
       var els;
       els = trees.byId("validation").find(".data-validation");
-      return els.each(function() {
-        return $(this).data("validators", [
-          function() {
-            return __indexOf.call(this.value, "1") >= 0;
-          }
-        ]);
-      });
+      els[0]._controlValidators = [
+        (function() {
+          return this.value === "123";
+        }), (function() {
+          return this.value !== "abc";
+        })
+      ];
+      els[1]._controlValidators = [
+        (function() {
+          return this.value !== "abc";
+        }), (function() {
+          return this.value === "abc";
+        })
+      ];
+      expect(valid(els[0])).to.equal(true);
+      expect(valid(els[1])).to.equal(false);
+      delete els[0]._controlValidators;
+      return delete els[1]._controlValidators;
     });
   });
+  return describe("validation with HTML5");
 });
 
 describe("Control prototype methods", function() {
