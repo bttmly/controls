@@ -230,3 +230,66 @@ describe "Control prototype methods", ->
   return
 
 
+
+describe "jQuery traversal methods", ->
+  describe "mutating methods return jQuery", ->
+    methods = [
+      "add"
+      "addBack"
+      "andSelf"
+      "children"
+      "closest"
+      "contents"
+      "end"
+      "find"
+      "next"
+      "nextAll"
+      "nextUntil"
+      "offsetParent"
+      "parent"
+      "parents"
+      "parentsUntil"
+      "prev"
+      "prevAll"
+      "prevUntil"
+      "siblings"
+    ]
+
+    ctls = undefined
+
+    beforeEach ->
+      ctls = trees.byId( "values" ).controls()
+
+    methods.forEach ( method ) ->
+      it "returns jQuery from @#{ method }()", ->
+        selection = ctls[method]()
+        expect( selection instanceof jQuery and selection not instanceof Controls )
+          .to.be.true
+
+    it "returns jQuery from @map()", ->
+      mapResult = ctls.map ->
+      expect( mapResult instanceof jQuery and mapResult not instanceof Controls )
+        .to.equal true
+
+  describe "subset and non-mutating methods return Controls", ->
+
+    methods = [
+      "slice"
+      "first"
+      "last"
+      "filter"
+      "not"
+      "eq"
+    ]
+
+    ctls = undefined
+
+    beforeEach ->
+      ctls = trees.byId( "values" ).controls()
+
+    methods.forEach ( method ) ->
+      it "returns Controls from @#{ method }()", ->
+        expect( ctls[method]() instanceof Controls ).to.be.true
+
+    it "returns Controls from @each()", ->
+      expect( ctls.each( -> ) instanceof Controls ).to.be.true

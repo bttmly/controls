@@ -290,6 +290,45 @@ describe("Control prototype methods", function() {
   describe("@labels", function() {});
 });
 
+describe("jQuery traversal methods", function() {
+  describe("mutating methods return jQuery", function() {
+    var ctls, methods;
+    methods = ["add", "addBack", "andSelf", "children", "closest", "contents", "end", "find", "next", "nextAll", "nextUntil", "offsetParent", "parent", "parents", "parentsUntil", "prev", "prevAll", "prevUntil", "siblings"];
+    ctls = void 0;
+    beforeEach(function() {
+      return ctls = trees.byId("values").controls();
+    });
+    methods.forEach(function(method) {
+      return it("returns jQuery from @" + method + "()", function() {
+        var selection;
+        selection = ctls[method]();
+        return expect(selection instanceof jQuery && !(selection instanceof Controls)).to.be["true"];
+      });
+    });
+    return it("returns jQuery from @map()", function() {
+      var mapResult;
+      mapResult = ctls.map(function() {});
+      return expect(mapResult instanceof jQuery && !(mapResult instanceof Controls)).to.equal(true);
+    });
+  });
+  return describe("subset and non-mutating methods return Controls", function() {
+    var ctls, methods;
+    methods = ["slice", "first", "last", "filter", "not", "eq"];
+    ctls = void 0;
+    beforeEach(function() {
+      return ctls = trees.byId("values").controls();
+    });
+    methods.forEach(function(method) {
+      return it("returns Controls from @" + method + "()", function() {
+        return expect(ctls[method]() instanceof Controls).to.be["true"];
+      });
+    });
+    return it("returns Controls from @each()", function() {
+      return expect(ctls.each(function() {}) instanceof Controls).to.be["true"];
+    });
+  });
+});
+
 
 },{"./array-generics.coffee":1,"./spec-utilities.coffee":3}],3:[function(require,module,exports){
 var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
