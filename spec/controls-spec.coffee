@@ -23,6 +23,7 @@ htmlFiles = [
   "./spec/html/values.html"
   "./spec/html/mixed.html"
   "./spec/html/validation.html"
+  "./spec/html/with-initial-state.html"
 ]
 
 # get all the HTML documents we need
@@ -78,14 +79,20 @@ describe "Controls.validateElement()", ->
   describe "validation against bound validators", ->
     it "validates against all present attached validators", ->
       els = trees.byId( "validation" ).find( ".data-validation" )
-      els[0]._controlValidators = [( -> @value == "123" ), ( -> @value != "abc" )]
-      els[1]._controlValidators = [( -> @value != "abc" ), ( -> @value == "abc" )]
+      els[0]._controlValidators = [
+        ( -> @value == "123" )
+        ( -> @value != "abc" )
+      ]
+      els[1]._controlValidators = [
+        ( -> @value != "abc" )
+        ( -> @value == "abc" )
+      ]
       expect( valid( els[0] ) ).to.equal true
       expect( valid( els[1] ) ).to.equal false
       delete els[0]._controlValidators
       delete els[1]._controlValidators
 
-  describe "validation with HTML5"
+  # describe "validation with HTML5"
 
 describe "Control prototype methods", ->
 
@@ -161,15 +168,39 @@ describe "Control prototype methods", ->
 
     xit "accepts a Controls selection"
 
+  describe "@reset()", ->
+    it "resets disabled, required, and value to their resetState", ->
+      els = trees.byId "initialState"
+      ctls = els.controls()
+      t1 = els.find( "#text1" )[0]
+      t2 = els.find( "#text2" )[0]
+      t3 = els.find( "#text3" )[0]
+      t4 = els.find( "#text4" )[0]
+      t1.value = ""
+      t2.value = ""
+      t2.required = false
+      t3.value = ""
+      t3.disabled = false
+      t4.value = ""
+      t4.required = false
+      t4.disabled = false
+      ctls.reset()
+      expect( t1.value ).to.equal "one"
+      expect( t2.value ).to.equal "two"
+      expect( t2.required ).to.equal true
+      expect( t3.value ).to.equal "three"
+      expect( t3.disabled ).to.equal true
+      expect( t4.value ).to.equal "four"
+      expect( t4.required ).to.equal true
+      expect( t4.disabled ).to.equal true
+
+  describe "@clear()", ->
 
 
   describe "@propValues()", ->
 
   describe "@values()", ->
 
-  describe "@reset()", ->
-
-  describe "@clear()", ->
 
   describe "@check", ->
   describe "@uncheck", ->

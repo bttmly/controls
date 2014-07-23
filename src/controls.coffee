@@ -1,3 +1,4 @@
+require "./matches-polyfill.coffee"
 Values = require "./values.coffee"
 isValid = require "./is-valid.coffee"
 getValue = require( "./get-value.coffee" ).getValueMappable
@@ -6,6 +7,9 @@ getValue = require( "./get-value.coffee" ).getValueMappable
 $ = jQuery = window.jQuery
 CHECKABLE = "input[type='radio'], input[type='checkbox']"
 BUTTON = "input[type='button'], button"
+
+qsa = ( selector, context = document ) ->
+  [].slice.call context.querySelectorAll selector
 
 propMap = ( jqCollection, keyProp, valProp ) ->
   jqCollection.get().reduce ( acc, el, i, arr ) ->
@@ -36,21 +40,25 @@ class Controls extends jQuery
     # set initial state data
     # refer to jq attr/prop to make this easier
     @each ( i, el ) ->
-      ( ->
-        @data "resetState",
-          disabled: @prop "disabled"
-          required: @prop "required"
-          value: do =>
-            if @is CHECKABLE
-              @prop "checked"
-            else if @is "select"
-              @find( "option:selected" ).get().map ( el ) ->
-                el.value || el.innerHTML
-            else if @is "input"
-              @val()
-            else
-              null
-      ).call $ el
+      data =
+        disabled: Boolean @disabled
+        required: Boolean @required
+        value: String do =>
+          if @matches CHECKABLE
+            @checked
+          else if @matches "select"
+            # qsa( "option", @ ).map ( el ) ->
+            #   el.value || el.innerHTML
+            qsa( "option", @ ).reduce ( acc, el ) ->
+              if el.selected is true
+                acc.push el.value or el.innerHTML
+              acc
+            , []
+          else if @matches "input"
+            @value
+          else
+            null
+      @_resetState = data
       
   filter: ( param ) ->
     @asJQuery().filter( param ).controls()
@@ -66,9 +74,19 @@ class Controls extends jQuery
 
   reset: ->
     @each ->
-      resetState = $( @ ).data "resetState"
-      # if resetState
-        #something
+      console.log @
+      @required = @_resetState.required
+      @disabled = @_resetState.disabled
+      if @matches CHECKABLE
+        @checked = @_resetState.value
+      else if @matches "select"
+        qsa( "option", @ ).forEach ( el ) =>
+          if el.value in @_resetState.value
+            el.selected = true
+      else if @matches "input"
+        @value = @_resetState.value
+      else
+        # nothing
     @
 
   clear: ->

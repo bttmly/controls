@@ -1,7 +1,10 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var $, BUTTON, CHECKABLE, Controls, Values, getValue, isValid, jQuery, map, propMap, reduce, _ref,
+var $, BUTTON, CHECKABLE, Controls, Values, getValue, isValid, jQuery, map, propMap, qsa, reduce, _ref,
   __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+require("./matches-polyfill.coffee");
 
 Values = require("./values.coffee");
 
@@ -16,6 +19,13 @@ $ = jQuery = window.jQuery;
 CHECKABLE = "input[type='radio'], input[type='checkbox']";
 
 BUTTON = "input[type='button'], button";
+
+qsa = function(selector, context) {
+  if (context == null) {
+    context = document;
+  }
+  return [].slice.call(context.querySelectorAll(selector));
+};
 
 propMap = function(jqCollection, keyProp, valProp) {
   return jqCollection.get().reduce(function(acc, el, i, arr) {
@@ -55,27 +65,30 @@ Controls = (function(_super) {
       };
     })(this));
     this.each(function(i, el) {
-      return (function() {
-        return this.data("resetState", {
-          disabled: this.prop("disabled"),
-          required: this.prop("required"),
-          value: (function(_this) {
-            return function() {
-              if (_this.is(CHECKABLE)) {
-                return _this.prop("checked");
-              } else if (_this.is("select")) {
-                return _this.find("option:selected").get().map(function(el) {
-                  return el.value || el.innerHTML;
-                });
-              } else if (_this.is("input")) {
-                return _this.val();
-              } else {
-                return null;
-              }
-            };
-          })(this)()
-        });
-      }).call($(el));
+      var data;
+      data = {
+        disabled: Boolean(this.disabled),
+        required: Boolean(this.required),
+        value: String((function(_this) {
+          return function() {
+            if (_this.matches(CHECKABLE)) {
+              return _this.checked;
+            } else if (_this.matches("select")) {
+              return qsa("option", _this).reduce(function(acc, el) {
+                if (el.selected === true) {
+                  acc.push(el.value || el.innerHTML);
+                }
+                return acc;
+              }, []);
+            } else if (_this.matches("input")) {
+              return _this.value;
+            } else {
+              return null;
+            }
+          };
+        })(this)())
+      };
+      return this._resetState = data;
     });
   }
 
@@ -97,8 +110,25 @@ Controls = (function(_super) {
 
   Controls.prototype.reset = function() {
     this.each(function() {
-      var resetState;
-      return resetState = $(this).data("resetState");
+      console.log(this);
+      this.required = this._resetState.required;
+      this.disabled = this._resetState.disabled;
+      if (this.matches(CHECKABLE)) {
+        return this.checked = this._resetState.value;
+      } else if (this.matches("select")) {
+        return qsa("option", this).forEach((function(_this) {
+          return function(el) {
+            var _ref1;
+            if (_ref1 = el.value, __indexOf.call(_this._resetState.value, _ref1) >= 0) {
+              return el.selected = true;
+            }
+          };
+        })(this));
+      } else if (this.matches("input")) {
+        return this.value = this._resetState.value;
+      } else {
+
+      }
     });
     return this;
   };
@@ -181,7 +211,7 @@ Controls = (function(_super) {
 module.exports = Controls;
 
 
-},{"./get-value.coffee":2,"./is-valid.coffee":4,"./utils.coffee":6,"./values.coffee":8}],2:[function(require,module,exports){
+},{"./get-value.coffee":2,"./is-valid.coffee":4,"./matches-polyfill.coffee":6,"./utils.coffee":7,"./values.coffee":9}],2:[function(require,module,exports){
 var $, BUTTON, CHECKABLE, SELECTED, getValue;
 
 $ = window.jQuery;
@@ -303,7 +333,7 @@ isValid = function() {
 module.exports = isValid;
 
 
-},{"./validations.coffee":7}],5:[function(require,module,exports){
+},{"./validations.coffee":8}],5:[function(require,module,exports){
 module.exports = (function() {
   require("./init.coffee");
   $.Controls = require("./controls.coffee");
@@ -312,7 +342,26 @@ module.exports = (function() {
 })();
 
 
-},{"./controls.coffee":1,"./init.coffee":3,"./values.coffee":8}],6:[function(require,module,exports){
+},{"./controls.coffee":1,"./init.coffee":3,"./values.coffee":9}],6:[function(require,module,exports){
+(function(Element) {
+  if (Element) {
+    return Element.prototype.matches = Element.prototype.matches || Element.prototype.matchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector || Element.prototype.webkitMatchesSelector || function(selector) {
+      var i, nodes;
+      nodes = (this.parentNode || this.document).querySelectorAll(selector);
+      i = 0;
+      while (i < nodes.length) {
+        if (nodes[i] === this) {
+          return true;
+        }
+        i += 1;
+      }
+      return false;
+    };
+  }
+})(window.Element);
+
+
+},{}],7:[function(require,module,exports){
 var demethodize;
 
 demethodize = function(fn) {
@@ -335,7 +384,7 @@ module.exports = {
 };
 
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var $, document, html5Validation, jQuery, slice, typeCheck, typeRadio, v,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -492,7 +541,7 @@ module.exports = v = {
 };
 
 
-},{"./utils.coffee":6}],8:[function(require,module,exports){
+},{"./utils.coffee":7}],9:[function(require,module,exports){
 var Values,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };

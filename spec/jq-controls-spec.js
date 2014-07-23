@@ -58,7 +58,7 @@ trees.byId = function(id) {
   return null;
 };
 
-htmlFiles = ["./spec/html/values.html", "./spec/html/mixed.html", "./spec/html/validation.html"];
+htmlFiles = ["./spec/html/values.html", "./spec/html/mixed.html", "./spec/html/validation.html", "./spec/html/with-initial-state.html"];
 
 $.when.apply($, htmlFiles.map($.get)).then(function() {
   [].push.apply(trees, [].slice.call(arguments).map(first).map($));
@@ -119,7 +119,7 @@ describe("Controls.validateElement()", function() {
       return expect(valid(els[1])).to.equal(false);
     });
   });
-  describe("validation against bound validators", function() {
+  return describe("validation against bound validators", function() {
     return it("validates against all present attached validators", function() {
       var els;
       els = trees.byId("validation").find(".data-validation");
@@ -143,7 +143,6 @@ describe("Controls.validateElement()", function() {
       return delete els[1]._controlValidators;
     });
   });
-  return describe("validation with HTML5");
 });
 
 describe("Control prototype methods", function() {
@@ -233,10 +232,37 @@ describe("Control prototype methods", function() {
     });
     return xit("accepts a Controls selection");
   });
+  describe("@reset()", function() {
+    return it("resets disabled, required, and value to their resetState", function() {
+      var ctls, els, t1, t2, t3, t4;
+      els = trees.byId("initialState");
+      ctls = els.controls();
+      t1 = els.find("#text1")[0];
+      t2 = els.find("#text2")[0];
+      t3 = els.find("#text3")[0];
+      t4 = els.find("#text4")[0];
+      t1.value = "";
+      t2.value = "";
+      t2.required = false;
+      t3.value = "";
+      t3.disabled = false;
+      t4.value = "";
+      t4.required = false;
+      t4.disabled = false;
+      ctls.reset();
+      expect(t1.value).to.equal("one");
+      expect(t2.value).to.equal("two");
+      expect(t2.required).to.equal(true);
+      expect(t3.value).to.equal("three");
+      expect(t3.disabled).to.equal(true);
+      expect(t4.value).to.equal("four");
+      expect(t4.required).to.equal(true);
+      return expect(t4.disabled).to.equal(true);
+    });
+  });
+  describe("@clear()", function() {});
   describe("@propValues()", function() {});
   describe("@values()", function() {});
-  describe("@reset()", function() {});
-  describe("@clear()", function() {});
   describe("@check", function() {});
   describe("@uncheck", function() {});
   describe("@require", function() {});
