@@ -49,20 +49,28 @@ Controls = (function(_super) {
     jQuery.fn.init.call(this, nodes);
     this.identifyingProp = opt.idProp || "id";
     this.isValid = this.valid();
-    this.on("change, input", (function(_this) {
-      return function() {
-        isValid = _this.valid();
-        if (isValid !== _this.isValid()) {
-          if (isValid) {
-            _this.trigger("valid");
-          } else {
-            _this.trigger("invalid");
+    if (!opt.noAutoValidate) {
+      this.on("change, input", (function(_this) {
+        return function() {
+          isValid = _this.valid();
+          if (isValid !== _this.isValid()) {
+            if (isValid) {
+              _this.trigger("valid");
+            } else {
+              _this.trigger("invalid");
+            }
+            return _this.isValid = isValid;
           }
-          return _this.isValid = isValid;
-        }
-      };
-    })(this));
-    this.each(function(i, el) {
+        };
+      })(this));
+    }
+    if (!opt.noResetState) {
+      this.setResetState();
+    }
+  }
+
+  Controls.prototype.setResetState = function() {
+    return this.each(function(i, el) {
       return $.data(this, "resetState", {
         disabled: this.disabled,
         required: this.required,
@@ -86,14 +94,14 @@ Controls = (function(_super) {
         })(this)()
       });
     });
-  }
+  };
 
   Controls.prototype.filter = function(param) {
-    return $.fn.filter.call(this, param);
+    return $.fn.filter.call(this, param).controls();
   };
 
   Controls.prototype.not = function(param) {
-    return $.fn.not.call(this, param);
+    return $.fn.not.call(this, param).controls();
   };
 
   Controls.prototype.propValues = function(prop) {
@@ -133,6 +141,19 @@ Controls = (function(_super) {
     this.filter(CHECKABLE).removeAttr("checked");
     this.not(CHECKABLE).val("");
     return this;
+  };
+
+  Controls.prototype.pushStack = function(elems) {
+    var ret;
+    ret = jQuery.merge(jQuery(), elems);
+    ret.prevObject = this;
+    ret.context = this.context;
+    return ret;
+  };
+
+  Controls.prototype.end = function() {
+    var _ref1;
+    return (_ref1 = this.prevObject) != null ? _ref1 : jQuery(null);
   };
 
   Controls.prototype.check = function() {

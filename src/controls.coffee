@@ -34,14 +34,17 @@ class Controls extends jQuery
     @isValid = @valid()
 
     # set validity listener
-    @on "change, input", =>
-      isValid = @valid()
-      if isValid isnt @isValid()
-        if isValid then @trigger "valid" else @trigger "invalid"
-        @isValid = isValid
+    unless opt.noAutoValidate
+      @on "change, input", =>
+        isValid = @valid()
+        if isValid isnt @isValid()
+          if isValid then @trigger "valid" else @trigger "invalid"
+          @isValid = isValid
 
-    # set initial state data
-    # refer to jq attr/prop to make this easier
+    unless opt.noResetState
+      @setResetState()
+  
+  setResetState: ->
     @each ( i, el ) ->
       $.data @, "resetState",
         disabled: @disabled
@@ -59,14 +62,12 @@ class Controls extends jQuery
             @value
           else
             null
-      
+
   filter: ( param ) ->
-    $.fn.filter.call( @, param )
-    # @asJQuery().filter( param ).controls()
+    $.fn.filter.call( @, param ).controls()
 
   not: ( param ) ->
-    $.fn.not.call( @, param )
-    # @asJQuery().not( param ).controls()
+    $.fn.not.call( @, param ).controls()
 
   propValues: ( prop ) ->
     new Values propMap @, @idProp, prop
@@ -94,6 +95,15 @@ class Controls extends jQuery
     @filter( CHECKABLE ).removeAttr "checked"
     @not( CHECKABLE ).val ""
     @
+
+  pushStack: (elems) ->
+    ret = jQuery.merge do jQuery, elems
+    ret.prevObject = this
+    ret.context = @context
+    ret
+
+  end: ->
+    @prevObject ? jQuery null
 
   # common attr convenience methods
   check: -> @attr "checked", "checked"
