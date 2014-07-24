@@ -2,9 +2,9 @@ require "./matches-polyfill.coffee"
 Values = require "./values.coffee"
 isValid = require "./is-valid.coffee"
 getValue = require( "./get-value.coffee" ).getValueMappable
-{ map, reduce, each, every } = require "./utils.coffee"
+{ map, reduce, each, every, slice } = require "./utils.coffee"
 
-$ = jQuery = window.jQuery
+jQuery = window.jQuery
 CHECKABLE = "input[type='radio'], input[type='checkbox']"
 BUTTON = "input[type='button'], button"
 TAGS = "input, select, button, textarea"
@@ -21,15 +21,23 @@ propMap = ( jqCollection, keyProp, valProp ) ->
     acc
   , []
 
+getControlNodes = ( nodes ) ->
+  reduce nodes, ( acc, node ) ->
+    if node.matches TAGS
+      acc.concat node
+    else
+      acc.concat slice node.querySelectorAll TAGS
+  , []
+
 class Controls extends jQuery
 
   @validateElement = isValid
 
   # maybe we should filter for control tags in here.
-  constructor: ( nodes, opt = {} ) ->
-    unless @ instanceof Controls and nodes
-      return new Controls $ ""
-    jQuery.fn.init.call @, nodes
+  constructor: ( nodes = "", opt = {} ) ->
+    unless @ instanceof Controls
+      return new Controls jQuery nodes
+    jQuery.fn.init.call @, getControlNodes nodes
     @identifyingProp = opt.idProp or "id"
     @isValid = @valid()
 
@@ -46,7 +54,7 @@ class Controls extends jQuery
   
   setResetState: ->
     @each ( i, el ) ->
-      $.data @, "resetState",
+      jQuery.data @, "resetState",
         disabled: @disabled
         required: @required
         value: do =>
@@ -64,10 +72,10 @@ class Controls extends jQuery
             null
 
   filter: ( param ) ->
-    $.fn.filter.call( @, param ).controls()
+    jQuery.fn.filter.call( @, param ).controls()
 
   not: ( param ) ->
-    $.fn.not.call( @, param ).controls()
+    jQuery.fn.not.call( @, param ).controls()
 
   propValues: ( prop ) ->
     new Values propMap @, @idProp, prop
@@ -77,7 +85,7 @@ class Controls extends jQuery
 
   reset: ->
     @each ->
-      data = $.data( @, "resetState" )
+      data = jQuery.data @, "resetState" 
       @required = data.required
       @disabled = data.disabled
       if @matches CHECKABLE
@@ -126,9 +134,9 @@ class Controls extends jQuery
   labels: ->
     reduce @, ( acc, el ) ->
       acc.add( el.labels )
-    , do $
+    , do jQuery
 
   asJQuery: ->
-    $ @get()
+    jQuery @get()
 
 module.exports = Controls

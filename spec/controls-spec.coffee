@@ -8,17 +8,11 @@ should = chai.should()
 
 utils = require "./spec-utilities.coffee"
 sameSelection = utils.areSameSelection
-{ each, map, reduce, filter, every, some } = require "./array-generics.coffee"
+{ each, map, reduce, filter, every, some, slice } = require "./array-generics.coffee"
 
 TAGS = [ "input", "select", "button", "textarea" ].join ", "
 CHECKABLE = [ "input[type='checkbox']", "input[type='radio']" ].join ", "
 first = ( arr ) -> arr[0]
-
-trees = window.trees = []
-trees.byId = ( id ) ->
-  for tree in @
-    return tree if tree.attr( "id" ) is id
-  return null
 
 htmlFiles = [
   "./spec/html/values.html"
@@ -27,11 +21,18 @@ htmlFiles = [
   "./spec/html/with-initial-state.html"
 ]
 
-# get all the HTML documents we need
-# then kick off the test suite by running mocha.run()
+trees = do ->
+  hash = {}
+  byId: ( id ) ->
+    if hash[id] then $( hash[id] )[0] else null
+  addTree: ( id, tree ) ->
+    hash[id] = tree
+
 $.when.apply $, htmlFiles.map $.get
   .then ->
-    [].push.apply trees, [].slice.call( arguments ).map( first ).map( $ )
+    slice( arguments ).map( first ).forEach ( htmlStr ) ->
+      id = $( htmlStr ).attr( "id" )
+      trees.addTree id, htmlStr
     mocha.run()
 
 describe "jQuery.fn.controls()", ->
@@ -41,13 +42,19 @@ describe "jQuery.fn.controls()", ->
       expect( jQuery.fn.controls ).to.be.a "function"
 
     it "works", ->
-      cSel = trees.byId( "values" ).controls()
-      jSel = trees.byId( "values" ).find "input, button, select"
+      root = trees.byId( "values" )
+      cSel = $( root ).controls()
+      jSel = $( root ).find "input, button, select"
       expect( utils.areSameSelection cSel, jSel ).to.equal true
 
 describe "Controls.validateElement()", ->
 
   valid = Controls.validateElement
+
+  root = null
+
+  beforeEach ->
+    root = trees.byId( "validation" )
 
   describe "validation against a passed in function", ->
     validatorA = ->
@@ -57,29 +64,30 @@ describe "Controls.validateElement()", ->
     thisIs = ( obj ) ->
       obj is @
 
+
     it "accepts a function", ->
-      els = trees.byId( "validation" ).find( ".custom-validation" )
+      els = $( root ).find( ".custom-validation" )
       expect( valid( els[0], validatorA ) ).to.equal true
       expect( valid( els[1], validatorA ) ).to.equal false
 
     it "accepts additional arguments", ->
-      els = trees.byId( "validation" ).find( ".custom-validation" )
+      els = $( root ).find( ".custom-validation" )
       expect( valid( els[0], validatorB, "abc" ) ).to.equal true
       expect( valid( els[1], validatorB, "abc" ) ).to.equal false
 
     it "calls the function with the element as 'this'", ->
-      els = trees.byId( "validation" ).find( ".custom-validation" )
+      els = $( root ).find( ".custom-validation" )
       expect( valid( els[0], thisIs, els[0] ) ).to.equal true
 
   describe "validation against a data-control-validation attribute", ->
     it "validates an input against preset attribute validators", ->
-      els = trees.byId( "validation" ).find( ".attr-validation" )
+      els = $( root ).find( ".attr-validation" )
       expect( valid( els[0] ) ).to.equal true
       expect( valid( els[1] ) ).to.equal false
 
   describe "validation against bound validators", ->
     it "validates against all present attached validators", ->
-      els = trees.byId( "validation" ).find( ".data-validation" )
+      els = $( root ).find( ".data-validation" )
       $.data els[0], "controlValidators", [
         ( -> @value == "123" )
         ( -> @value != "abc" )
@@ -103,9 +111,10 @@ describe "Control prototype methods", ->
   qsa = undefined
 
   beforeEach ->
-    jSel = trees.byId( "values" )
-    cSel = trees.byId( "values" ).controls()
-    qsa = Element::querySelectorAll.bind( trees.byId( "values" )[0] )
+    root = trees.byId( "values" )
+    jSel = $( root )
+    cSel = $( root ).controls()
+    qsa = Element::querySelectorAll.bind( root )
 
   describe "@filter()", ->
     it "returns a Controls instance", ->
@@ -170,8 +179,9 @@ describe "Control prototype methods", ->
 
   describe "@reset()", ->
     it "resets disabled, required, and value to their resetState", ->
-      els = trees.byId "initialState"
-      ctls = els.controls()
+      root = trees.byId "initialState"
+      els = $( root )
+      ctls = $( root ).controls()
       t1 = els.find( "#text1" )[0]
       t2 = els.find( "#text2" )[0]
       t3 = els.find( "#text3" )[0]
@@ -196,8 +206,9 @@ describe "Control prototype methods", ->
 
   describe "@clear()", ->
     it "clears values, checked, and selected", ->
-      els = trees.byId "initialState"
-      ctls = els.controls()
+      root = trees.byId "initialState"
+      els = $( root )
+      ctls = $( root ).controls()
       ctls.clear()
       expect( every ctls.filter( "[type='text']" ), ( el ) ->
         el.value is ""
@@ -255,10 +266,11 @@ describe "jQuery traversal methods", ->
       "siblings"
     ]
 
+    root = undefined
     ctls = undefined
-
     beforeEach ->
-      ctls = trees.byId( "values" ).controls()
+      root = trees.byId( "values" )
+      ctls = $( root ).controls()
 
     methods.forEach ( method ) ->
       it "returns jQuery from @#{ method }()", ->
@@ -282,10 +294,11 @@ describe "jQuery traversal methods", ->
       "eq"
     ]
 
+    root = undefined
     ctls = undefined
-
     beforeEach ->
-      ctls = trees.byId( "values" ).controls()
+      root = trees.byId( "values" )
+      ctls = $( root ).controls()
 
     methods.forEach ( method ) ->
       it "returns Controls from @#{ method }()", ->

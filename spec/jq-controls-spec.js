@@ -11,12 +11,13 @@ module.exports = {
   reduce: demethodize(Array.prototype.reduce),
   filter: demethodize(Array.prototype.filter),
   every: demethodize(Array.prototype.every),
-  some: demethodize(Array.prototype.some)
+  some: demethodize(Array.prototype.some),
+  slice: demethodize(Array.prototype.slice)
 };
 
 
 },{}],2:[function(require,module,exports){
-var $, CHECKABLE, Controls, TAGS, Values, assert, chai, each, every, expect, filter, first, htmlFiles, jQuery, map, reduce, sameSelection, should, some, trees, utils, _ref,
+var $, CHECKABLE, Controls, TAGS, Values, assert, chai, each, every, expect, filter, first, htmlFiles, jQuery, map, reduce, sameSelection, should, slice, some, trees, utils, _ref,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 $ = jQuery = window.jQuery;
@@ -37,7 +38,7 @@ utils = require("./spec-utilities.coffee");
 
 sameSelection = utils.areSameSelection;
 
-_ref = require("./array-generics.coffee"), each = _ref.each, map = _ref.map, reduce = _ref.reduce, filter = _ref.filter, every = _ref.every, some = _ref.some;
+_ref = require("./array-generics.coffee"), each = _ref.each, map = _ref.map, reduce = _ref.reduce, filter = _ref.filter, every = _ref.every, some = _ref.some, slice = _ref.slice;
 
 TAGS = ["input", "select", "button", "textarea"].join(", ");
 
@@ -47,23 +48,31 @@ first = function(arr) {
   return arr[0];
 };
 
-trees = window.trees = [];
-
-trees.byId = function(id) {
-  var tree, _i, _len;
-  for (_i = 0, _len = this.length; _i < _len; _i++) {
-    tree = this[_i];
-    if (tree.attr("id") === id) {
-      return tree;
-    }
-  }
-  return null;
-};
-
 htmlFiles = ["./spec/html/values.html", "./spec/html/mixed.html", "./spec/html/validation.html", "./spec/html/with-initial-state.html"];
 
+trees = (function() {
+  var hash;
+  hash = {};
+  return {
+    byId: function(id) {
+      if (hash[id]) {
+        return $(hash[id])[0];
+      } else {
+        return null;
+      }
+    },
+    addTree: function(id, tree) {
+      return hash[id] = tree;
+    }
+  };
+})();
+
 $.when.apply($, htmlFiles.map($.get)).then(function() {
-  [].push.apply(trees, [].slice.call(arguments).map(first).map($));
+  slice(arguments).map(first).forEach(function(htmlStr) {
+    var id;
+    id = $(htmlStr).attr("id");
+    return trees.addTree(id, htmlStr);
+  });
   return mocha.run();
 });
 
@@ -73,17 +82,22 @@ describe("jQuery.fn.controls()", function() {
       return expect(jQuery.fn.controls).to.be.a("function");
     });
     return it("works", function() {
-      var cSel, jSel;
-      cSel = trees.byId("values").controls();
-      jSel = trees.byId("values").find("input, button, select");
+      var cSel, jSel, root;
+      root = trees.byId("values");
+      cSel = $(root).controls();
+      jSel = $(root).find("input, button, select");
       return expect(utils.areSameSelection(cSel, jSel)).to.equal(true);
     });
   });
 });
 
 describe("Controls.validateElement()", function() {
-  var valid;
+  var root, valid;
   valid = Controls.validateElement;
+  root = null;
+  beforeEach(function() {
+    return root = trees.byId("validation");
+  });
   describe("validation against a passed in function", function() {
     var thisIs, validatorA, validatorB;
     validatorA = function() {
@@ -97,26 +111,26 @@ describe("Controls.validateElement()", function() {
     };
     it("accepts a function", function() {
       var els;
-      els = trees.byId("validation").find(".custom-validation");
+      els = $(root).find(".custom-validation");
       expect(valid(els[0], validatorA)).to.equal(true);
       return expect(valid(els[1], validatorA)).to.equal(false);
     });
     it("accepts additional arguments", function() {
       var els;
-      els = trees.byId("validation").find(".custom-validation");
+      els = $(root).find(".custom-validation");
       expect(valid(els[0], validatorB, "abc")).to.equal(true);
       return expect(valid(els[1], validatorB, "abc")).to.equal(false);
     });
     return it("calls the function with the element as 'this'", function() {
       var els;
-      els = trees.byId("validation").find(".custom-validation");
+      els = $(root).find(".custom-validation");
       return expect(valid(els[0], thisIs, els[0])).to.equal(true);
     });
   });
   describe("validation against a data-control-validation attribute", function() {
     return it("validates an input against preset attribute validators", function() {
       var els;
-      els = trees.byId("validation").find(".attr-validation");
+      els = $(root).find(".attr-validation");
       expect(valid(els[0])).to.equal(true);
       return expect(valid(els[1])).to.equal(false);
     });
@@ -124,7 +138,7 @@ describe("Controls.validateElement()", function() {
   return describe("validation against bound validators", function() {
     return it("validates against all present attached validators", function() {
       var els;
-      els = trees.byId("validation").find(".data-validation");
+      els = $(root).find(".data-validation");
       $.data(els[0], "controlValidators", [
         (function() {
           return this.value === "123";
@@ -154,9 +168,11 @@ describe("Control prototype methods", function() {
   vSel = void 0;
   qsa = void 0;
   beforeEach(function() {
-    jSel = trees.byId("values");
-    cSel = trees.byId("values").controls();
-    return qsa = Element.prototype.querySelectorAll.bind(trees.byId("values")[0]);
+    var root;
+    root = trees.byId("values");
+    jSel = $(root);
+    cSel = $(root).controls();
+    return qsa = Element.prototype.querySelectorAll.bind(root);
   });
   describe("@filter()", function() {
     it("returns a Controls instance", function() {
@@ -234,9 +250,10 @@ describe("Control prototype methods", function() {
   });
   describe("@reset()", function() {
     return it("resets disabled, required, and value to their resetState", function() {
-      var ctls, els, t1, t2, t3, t4;
-      els = trees.byId("initialState");
-      ctls = els.controls();
+      var ctls, els, root, t1, t2, t3, t4;
+      root = trees.byId("initialState");
+      els = $(root);
+      ctls = $(root).controls();
       t1 = els.find("#text1")[0];
       t2 = els.find("#text2")[0];
       t3 = els.find("#text3")[0];
@@ -262,9 +279,10 @@ describe("Control prototype methods", function() {
   });
   describe("@clear()", function() {
     return it("clears values, checked, and selected", function() {
-      var ctls, els;
-      els = trees.byId("initialState");
-      ctls = els.controls();
+      var ctls, els, root;
+      root = trees.byId("initialState");
+      els = $(root);
+      ctls = $(root).controls();
       ctls.clear();
       expect(every(ctls.filter("[type='text']"), function(el) {
         return el.value === "";
@@ -292,11 +310,13 @@ describe("Control prototype methods", function() {
 
 describe("jQuery traversal methods", function() {
   describe("mutating methods return jQuery", function() {
-    var ctls, methods;
+    var ctls, methods, root;
     methods = ["add", "addBack", "andSelf", "children", "closest", "contents", "end", "find", "next", "nextAll", "nextUntil", "offsetParent", "parent", "parents", "parentsUntil", "prev", "prevAll", "prevUntil", "siblings"];
+    root = void 0;
     ctls = void 0;
     beforeEach(function() {
-      return ctls = trees.byId("values").controls();
+      root = trees.byId("values");
+      return ctls = $(root).controls();
     });
     methods.forEach(function(method) {
       return it("returns jQuery from @" + method + "()", function() {
@@ -312,11 +332,13 @@ describe("jQuery traversal methods", function() {
     });
   });
   return describe("subset and non-mutating methods return Controls", function() {
-    var ctls, methods;
+    var ctls, methods, root;
     methods = ["slice", "first", "last", "filter", "not", "eq"];
+    root = void 0;
     ctls = void 0;
     beforeEach(function() {
-      return ctls = trees.byId("values").controls();
+      root = trees.byId("values");
+      return ctls = $(root).controls();
     });
     methods.forEach(function(method) {
       return it("returns Controls from @" + method + "()", function() {

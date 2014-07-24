@@ -8,3 +8,4 @@ module.exports =
   filter: demethodize Array::filter
   every: demethodize Array::every
   some: demethodize Array::some
+  slice: demethodize Array::slice

@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var $, BUTTON, CHECKABLE, Controls, TAGS, Values, each, every, getValue, isValid, jQuery, map, propMap, reduce, _ref,
+var BUTTON, CHECKABLE, Controls, TAGS, Values, each, every, getControlNodes, getValue, isValid, jQuery, map, propMap, reduce, slice, _ref,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -12,9 +12,9 @@ isValid = require("./is-valid.coffee");
 
 getValue = require("./get-value.coffee").getValueMappable;
 
-_ref = require("./utils.coffee"), map = _ref.map, reduce = _ref.reduce, each = _ref.each, every = _ref.every;
+_ref = require("./utils.coffee"), map = _ref.map, reduce = _ref.reduce, each = _ref.each, every = _ref.every, slice = _ref.slice;
 
-$ = jQuery = window.jQuery;
+jQuery = window.jQuery;
 
 CHECKABLE = "input[type='radio'], input[type='checkbox']";
 
@@ -34,19 +34,32 @@ propMap = function(jqCollection, keyProp, valProp) {
   }, []);
 };
 
+getControlNodes = function(nodes) {
+  return reduce(nodes, function(acc, node) {
+    if (node.matches(TAGS)) {
+      return acc.concat(node);
+    } else {
+      return acc.concat(slice(node.querySelectorAll(TAGS)));
+    }
+  }, []);
+};
+
 Controls = (function(_super) {
   __extends(Controls, _super);
 
   Controls.validateElement = isValid;
 
   function Controls(nodes, opt) {
+    if (nodes == null) {
+      nodes = "";
+    }
     if (opt == null) {
       opt = {};
     }
-    if (!(this instanceof Controls && nodes)) {
-      return new Controls($(""));
+    if (!(this instanceof Controls)) {
+      return new Controls(jQuery(nodes));
     }
-    jQuery.fn.init.call(this, nodes);
+    jQuery.fn.init.call(this, getControlNodes(nodes));
     this.identifyingProp = opt.idProp || "id";
     this.isValid = this.valid();
     if (!opt.noAutoValidate) {
@@ -71,7 +84,7 @@ Controls = (function(_super) {
 
   Controls.prototype.setResetState = function() {
     return this.each(function(i, el) {
-      return $.data(this, "resetState", {
+      return jQuery.data(this, "resetState", {
         disabled: this.disabled,
         required: this.required,
         value: (function(_this) {
@@ -97,11 +110,11 @@ Controls = (function(_super) {
   };
 
   Controls.prototype.filter = function(param) {
-    return $.fn.filter.call(this, param).controls();
+    return jQuery.fn.filter.call(this, param).controls();
   };
 
   Controls.prototype.not = function(param) {
-    return $.fn.not.call(this, param).controls();
+    return jQuery.fn.not.call(this, param).controls();
   };
 
   Controls.prototype.propValues = function(prop) {
@@ -115,7 +128,7 @@ Controls = (function(_super) {
   Controls.prototype.reset = function() {
     this.each(function() {
       var data;
-      data = $.data(this, "resetState");
+      data = jQuery.data(this, "resetState");
       this.required = data.required;
       this.disabled = data.disabled;
       if (this.matches(CHECKABLE)) {
@@ -205,11 +218,11 @@ Controls = (function(_super) {
   Controls.prototype.labels = function() {
     return reduce(this, function(acc, el) {
       return acc.add(el.labels);
-    }, $());
+    }, jQuery());
   };
 
   Controls.prototype.asJQuery = function() {
-    return $(this.get());
+    return jQuery(this.get());
   };
 
   return Controls;
