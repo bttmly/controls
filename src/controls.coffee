@@ -3,14 +3,9 @@ Values = require "./values.coffee"
 isValid = require "./is-valid.coffee"
 getValue = require( "./get-value.coffee" ).getValueMappable
 { map, reduce, each, every, slice } = require "./utils.coffee"
+{ CHECKABLE, BUTTON, TAGS } = require "./selectors.coffee"
 
 jQuery = window.jQuery
-CHECKABLE = "input[type='radio'], input[type='checkbox']"
-BUTTON = "input[type='button'], button"
-TAGS = "input, select, button, textarea"
-
-# qsa = ( selector, context = document ) ->
-#   [].slice.call context.querySelectorAll selector
 
 propMap = ( jqCollection, keyProp, valProp ) ->
   jqCollection.get().reduce ( acc, el, i, arr ) ->

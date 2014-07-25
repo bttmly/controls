@@ -224,13 +224,61 @@ describe "Control prototype methods", ->
 
   describe "@values()", ->
 
-
   describe "@check", ->
+    it "checks all checkable inputs", ->
+      cSel.check()
+      expect every cSel.filter( CHECKABLE ), ( el ) ->
+        el.checked is true
+
+    it "doesn't add a checked property to non checkable elements", ->
+      cSel.check()
+      expect every cSel.not( CHECKABLE ), ( el ) ->
+        el.checked is undefined
+
   describe "@uncheck", ->
+    it "unchecks all checkable inputs", ->
+      cSel.check()
+      expect every cSel.filter( CHECKABLE ), ( el ) ->
+        el.checked is true
+      cSel.uncheck()
+      expect every cSel.filter( CHECKABLE ), ( el ) ->
+        el.checked is false
+
+    it "doesn't add a checked property to non checkable elements", ->
+      cSel.uncheck()
+      expect every cSel.not( CHECKABLE ), ( el ) ->
+        el.checked is undefined
+
   describe "@require", ->
+    it "makes all selected controls required", ->
+      cSel.require()
+      expect every cSel, ( el ) ->
+        el.required is true
+
   describe "@unrequire", ->
+    it "makes all selected controls not required", ->
+      cSel.require()
+      expect every cSel, ( el ) ->
+        el.required is true
+      cSel.unrequire()
+      expect every cSel, ( el ) ->
+        el.required is false
+
   describe "@disable", ->
+    it "makes selected controls disabled", ->
+      cSel.disable()
+      expect every cSel, ( el ) ->
+        el.disabled is true
+
   describe "@enable", ->
+    it "makes selected controls enabled", ->
+      cSel.disable()
+      expect every cSel, ( el ) ->
+        el.disabled is true
+      cSel.enable()
+      expect eery cSel, ( el ) ->
+        el.disabled is false
+
 
   describe "@valid", ->
 
@@ -239,8 +287,6 @@ describe "Control prototype methods", ->
   describe "@labels", ->
   
   return
-
-
 
 describe "jQuery traversal methods", ->
   describe "mutating methods return jQuery", ->

@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var BUTTON, CHECKABLE, Controls, TAGS, Values, each, every, getControlNodes, getValue, isValid, jQuery, map, propMap, reduce, slice, _ref,
+var BUTTON, CHECKABLE, Controls, TAGS, Values, each, every, getControlNodes, getValue, isValid, jQuery, map, propMap, reduce, slice, _ref, _ref1,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -14,13 +14,9 @@ getValue = require("./get-value.coffee").getValueMappable;
 
 _ref = require("./utils.coffee"), map = _ref.map, reduce = _ref.reduce, each = _ref.each, every = _ref.every, slice = _ref.slice;
 
+_ref1 = require("./selectors.coffee"), CHECKABLE = _ref1.CHECKABLE, BUTTON = _ref1.BUTTON, TAGS = _ref1.TAGS;
+
 jQuery = window.jQuery;
-
-CHECKABLE = "input[type='radio'], input[type='checkbox']";
-
-BUTTON = "input[type='button'], button";
-
-TAGS = "input, select, button, textarea";
 
 propMap = function(jqCollection, keyProp, valProp) {
   return jqCollection.get().reduce(function(acc, el, i, arr) {
@@ -136,8 +132,8 @@ Controls = (function(_super) {
       } else if (this.matches("select")) {
         return each(this.querySelectorAll("option"), (function(_this) {
           return function(el) {
-            var _ref1;
-            if (_ref1 = el.value, __indexOf.call(data.value, _ref1) >= 0) {
+            var _ref2;
+            if (_ref2 = el.value, __indexOf.call(data.value, _ref2) >= 0) {
               return el.selected = true;
             }
           };
@@ -165,8 +161,8 @@ Controls = (function(_super) {
   };
 
   Controls.prototype.end = function() {
-    var _ref1;
-    return (_ref1 = this.prevObject) != null ? _ref1 : jQuery(null);
+    var _ref2;
+    return (_ref2 = this.prevObject) != null ? _ref2 : jQuery(null);
   };
 
   Controls.prototype.check = function() {
@@ -232,16 +228,12 @@ Controls = (function(_super) {
 module.exports = Controls;
 
 
-},{"./get-value.coffee":2,"./is-valid.coffee":4,"./matches-polyfill.coffee":6,"./utils.coffee":7,"./values.coffee":9}],2:[function(require,module,exports){
-var $, BUTTON, CHECKABLE, SELECTED, getValue;
+},{"./get-value.coffee":2,"./is-valid.coffee":4,"./matches-polyfill.coffee":6,"./selectors.coffee":7,"./utils.coffee":8,"./values.coffee":10}],2:[function(require,module,exports){
+var $, BUTTON, CHECKABLE, SELECTED, getValue, _ref;
 
 $ = window.jQuery;
 
-CHECKABLE = "input[type='checkbox'], input[type='radio']";
-
-SELECTED = ":selected:not(:disabled)";
-
-BUTTON = "input[type='button'], button";
+_ref = require("./selectors.coffee"), CHECKABLE = _ref.CHECKABLE, SELECTED = _ref.SELECTED, BUTTON = _ref.BUTTON;
 
 getValue = function(el) {
   var $el;
@@ -266,7 +258,7 @@ getValue = function(el) {
 module.exports = getValue;
 
 
-},{}],3:[function(require,module,exports){
+},{"./selectors.coffee":7}],3:[function(require,module,exports){
 var $, CONTROL_TAGS, Controls;
 
 Controls = require("./controls.coffee");
@@ -354,7 +346,7 @@ isValid = function() {
 module.exports = isValid;
 
 
-},{"./validations.coffee":8}],5:[function(require,module,exports){
+},{"./validations.coffee":9}],5:[function(require,module,exports){
 module.exports = (function() {
   require("./init.coffee");
   $.Controls = require("./controls.coffee");
@@ -363,7 +355,7 @@ module.exports = (function() {
 })();
 
 
-},{"./controls.coffee":1,"./init.coffee":3,"./values.coffee":9}],6:[function(require,module,exports){
+},{"./controls.coffee":1,"./init.coffee":3,"./values.coffee":10}],6:[function(require,module,exports){
 (function(Element) {
   if (Element) {
     return Element.prototype.matches = Element.prototype.matches || Element.prototype.matchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector || Element.prototype.webkitMatchesSelector || function(selector) {
@@ -383,6 +375,16 @@ module.exports = (function() {
 
 
 },{}],7:[function(require,module,exports){
+module.exports = {
+  CHECKABLE: "input[type='radio'], input[type='checkbox']",
+  BUTTON: "input[type='button'], button",
+  TAGS: "input, select, button, textarea",
+  RADIO: "[type='radio']",
+  CHECK: "[type='checkbox']"
+};
+
+
+},{}],8:[function(require,module,exports){
 var arrayMethods, demethodize, method, utils, _fn, _i, _len;
 
 demethodize = function(fn) {
@@ -416,11 +418,13 @@ utils.each = utils.forEach;
 module.exports = utils;
 
 
-},{}],8:[function(require,module,exports){
-var $, document, html5Validation, jQuery, slice, typeCheck, typeRadio, v,
+},{}],9:[function(require,module,exports){
+var $, CHECK, RADIO, document, html5Validation, jQuery, slice, v, _ref,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 slice = require("./utils.coffee").slice;
+
+_ref = require("./selectors.coffee"), CHECK = _ref.CHECK, RADIO = _ref.RADIO;
 
 $ = jQuery = window.jQuery;
 
@@ -432,13 +436,10 @@ html5Validation = (function() {
   return function(inputType, value) {
     testEl.type = inputType;
     testEl.value = value;
+    testEl.required = true;
     return testEl.validity.valid;
   };
 })();
-
-typeRadio = "[type='radio']";
-
-typeCheck = "[type='checkbox']";
 
 module.exports = v = {
   notEmpty: function() {
@@ -475,14 +476,14 @@ module.exports = v = {
     return html5Validation("url", this.value);
   },
   list: function() {
-    var _ref;
-    return _ref = this.value, __indexOf.call(slice(this.list.options || []).map(function(option) {
+    var _ref1;
+    return _ref1 = this.value, __indexOf.call(slice(this.list.options || []).map(function(option) {
       return option.value || option.innerHTML;
-    }), _ref) >= 0;
+    }), _ref1) >= 0;
   },
   radio: function() {
     if (this.name) {
-      return $("" + typeRadio + "[name='" + this.name + "']").get().some(function(input) {
+      return $("" + RADIO + "[name='" + this.name + "']").get().some(function(input) {
         return input.checked;
       });
     } else {
@@ -498,7 +499,7 @@ module.exports = v = {
       maxChecked = 50;
     }
     if (this.name) {
-      len = $("" + typeCheck + "[name='" + this.name + "']").filter(function() {
+      len = $("" + CHECK + "[name='" + this.name + "']").filter(function() {
         return $(this).prop("checked");
       }).length;
       return (minChecked <= len && len <= maxChecked);
@@ -507,7 +508,7 @@ module.exports = v = {
     }
   },
   select: function(min, max) {
-    var selected, _ref;
+    var selected, _ref1;
     if (min == null) {
       min = 1;
     }
@@ -517,7 +518,7 @@ module.exports = v = {
     selected = filter(this(function(opt) {
       return opt.selected && !opt.disabled;
     }));
-    if ((min <= (_ref = selected.length) && _ref <= max)) {
+    if ((min <= (_ref1 = selected.length) && _ref1 <= max)) {
       return true;
     } else {
       return false;
@@ -548,8 +549,8 @@ module.exports = v = {
     return true;
   },
   numberBetween: function(min, max) {
-    var _ref;
-    return (Number(min) <= (_ref = Number(this.value)) && _ref <= Number(max));
+    var _ref1;
+    return (Number(min) <= (_ref1 = Number(this.value)) && _ref1 <= Number(max));
   },
   numberMax: function(max) {
     return Number(this.value) <= Number(max);
@@ -558,8 +559,8 @@ module.exports = v = {
     return Number(this.value) >= Number(min);
   },
   lengthBetween: function(min, max) {
-    var _ref;
-    return (Number(min) <= (_ref = this.value.length) && _ref <= Number(max));
+    var _ref1;
+    return (Number(min) <= (_ref1 = this.value.length) && _ref1 <= Number(max));
   },
   lengthMax: function(max) {
     return this.value.length <= Number(max);
@@ -573,7 +574,7 @@ module.exports = v = {
 };
 
 
-},{"./utils.coffee":7}],9:[function(require,module,exports){
+},{"./selectors.coffee":7,"./utils.coffee":8}],10:[function(require,module,exports){
 var Values,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };

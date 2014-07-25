@@ -297,12 +297,78 @@ describe("Control prototype methods", function() {
   });
   describe("@propValues()", function() {});
   describe("@values()", function() {});
-  describe("@check", function() {});
-  describe("@uncheck", function() {});
-  describe("@require", function() {});
-  describe("@unrequire", function() {});
-  describe("@disable", function() {});
-  describe("@enable", function() {});
+  describe("@check", function() {
+    it("checks all checkable inputs", function() {
+      cSel.check();
+      return expect(every(cSel.filter(CHECKABLE), function(el) {
+        return el.checked === true;
+      }));
+    });
+    return it("doesn't add a checked property to non checkable elements", function() {
+      cSel.check();
+      return expect(every(cSel.not(CHECKABLE), function(el) {
+        return el.checked === void 0;
+      }));
+    });
+  });
+  describe("@uncheck", function() {
+    it("unchecks all checkable inputs", function() {
+      cSel.check();
+      expect(every(cSel.filter(CHECKABLE), function(el) {
+        return el.checked === true;
+      }));
+      cSel.uncheck();
+      return expect(every(cSel.filter(CHECKABLE), function(el) {
+        return el.checked === false;
+      }));
+    });
+    return it("doesn't add a checked property to non checkable elements", function() {
+      cSel.uncheck();
+      return expect(every(cSel.not(CHECKABLE), function(el) {
+        return el.checked === void 0;
+      }));
+    });
+  });
+  describe("@require", function() {
+    return it("makes all selected controls required", function() {
+      cSel.require();
+      return expect(every(cSel, function(el) {
+        return el.required === true;
+      }));
+    });
+  });
+  describe("@unrequire", function() {
+    return it("makes all selected controls not required", function() {
+      cSel.require();
+      expect(every(cSel, function(el) {
+        return el.required === true;
+      }));
+      cSel.unrequire();
+      return expect(every(cSel, function(el) {
+        return el.required === false;
+      }));
+    });
+  });
+  describe("@disable", function() {
+    return it("makes selected controls disabled", function() {
+      cSel.disable();
+      return expect(every(cSel, function(el) {
+        return el.disabled === true;
+      }));
+    });
+  });
+  describe("@enable", function() {
+    return it("makes selected controls enabled", function() {
+      cSel.disable();
+      expect(every(cSel, function(el) {
+        return el.disabled === true;
+      }));
+      cSel.enable();
+      return expect(eery(cSel, function(el) {
+        return el.disabled === false;
+      }));
+    });
+  });
   describe("@valid", function() {});
   describe("@bindValidator", function() {});
   describe("@labels", function() {});

@@ -1,8 +1,6 @@
 $ = window.jQuery
 
-CHECKABLE = "input[type='checkbox'], input[type='radio']"
-SELECTED = ":selected:not(:disabled)"
-BUTTON = "input[type='button'], button"
+{ CHECKABLE, SELECTED, BUTTON } = require "./selectors.coffee"
 
 getValue = ( el ) ->
   $el = $( el )
