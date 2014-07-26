@@ -310,22 +310,23 @@ describe "Control prototype methods", ->
 
 
   describe "@valid", ->
+
     it "delegates to Controls.validateElement", ->
-      spy = sinon.spy Controls, "validateElement"
+      stub = sinon.stub Controls, "validateElement"
       cSel.valid()
-      expect( spy.called ).to.be.true
-      spy.restore()
+      expect( stub.called ).to.be.true
+      stub.restore()
     
     it "returns true when each element passes Controls.validateElement", ->
       stub = sinon.stub Controls, "validateElement", -> true
       expect( cSel.valid() ).to.be.true
+      expect( stub.callCount ).to.equal cSel.length
       stub.restore()
 
-      Controls.validateElement.restore()
     it "returns false when any element fails Controls.validateElement", ->
-      stub = sinon.stub Controls, "validateElement", -> true
-      stub.onCall( 2 ).returns false
+      stub = sinon.stub Controls, "validateElement", -> false
       expect( cSel.valid() ).to.be.false
+      expect( stub.callCount ).to.equal 1
       stub.restore()
 
 

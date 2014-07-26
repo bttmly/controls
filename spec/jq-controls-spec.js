@@ -361,11 +361,11 @@ describe("Control prototype methods", function() {
   });
   describe("@valid", function() {
     it("delegates to Controls.validateElement", function() {
-      var spy;
-      spy = sinon.spy(Controls, "validateElement");
+      var stub;
+      stub = sinon.stub(Controls, "validateElement");
       cSel.valid();
-      expect(spy.called).to.be["true"];
-      return spy.restore();
+      expect(stub.called).to.be["true"];
+      return stub.restore();
     });
     it("returns true when each element passes Controls.validateElement", function() {
       var stub;
@@ -373,16 +373,16 @@ describe("Control prototype methods", function() {
         return true;
       });
       expect(cSel.valid()).to.be["true"];
-      stub.restore();
-      return Controls.validateElement.restore();
+      expect(stub.callCount).to.equal(cSel.length);
+      return stub.restore();
     });
     return it("returns false when any element fails Controls.validateElement", function() {
       var stub;
       stub = sinon.stub(Controls, "validateElement", function() {
-        return true;
+        return false;
       });
-      stub.onCall(2).returns(false);
       expect(cSel.valid()).to.be["false"];
+      expect(stub.callCount).to.equal(1);
       return stub.restore();
     });
   });
