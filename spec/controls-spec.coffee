@@ -1,17 +1,23 @@
-$ = jQuery = window.jQuery
-Controls = jQuery.Controls
-Values = jQuery.Values
-chai = window.chai
-assert = chai.assert
-expect = chai.expect
-should = chai.should()
+jQuery = window.jQuery
+{ Controls, Values } = jQuery
+sinon = window.sinon
+{ expect } = window.chai
 
-utils = require "./spec-utilities.coffee"
-sameSelection = utils.areSameSelection
-{ each, map, reduce, filter, every, some, slice } = require "./array-generics.coffee"
+{ sameSelection } = require "./spec-utilities.coffee"
 
-TAGS = [ "input", "select", "button", "textarea" ].join ", "
-CHECKABLE = [ "input[type='checkbox']", "input[type='radio']" ].join ", "
+{ map
+  some
+  every
+  slice
+  filter
+  reduce } = require "./array-generics.coffee"
+
+{ CHECKABLE
+  BUTTON
+  TAGS
+  RADIO
+  CHECK } = require "./selectors.coffee"
+
 first = ( arr ) -> arr[0]
 
 htmlFiles = [
@@ -19,20 +25,21 @@ htmlFiles = [
   "./spec/html/mixed.html"
   "./spec/html/validation.html"
   "./spec/html/with-initial-state.html"
+  "./spec/html/with-labels.html"
 ]
 
-trees = do ->
-  hash = {}
+trees = window.trees = do ->
+  storage = {}
   byId: ( id ) ->
-    if hash[id] then $( hash[id] )[0] else null
-  addTree: ( id, tree ) ->
-    hash[id] = tree
+    if storage[id] then $.parseHTML( storage[id] )[0] else null
+  addTree: ( htmlStr ) ->
+    id = $( htmlStr ).attr "id"
+    console.log id
+    storage[id] = htmlStr
 
 $.when.apply $, htmlFiles.map $.get
   .then ->
-    slice( arguments ).map( first ).forEach ( htmlStr ) ->
-      id = $( htmlStr ).attr( "id" )
-      trees.addTree id, htmlStr
+    slice( arguments ).map( first ).map( trees.addTree )
     mocha.run()
 
 describe "jQuery.fn.controls()", ->
@@ -45,7 +52,7 @@ describe "jQuery.fn.controls()", ->
       root = trees.byId( "values" )
       cSel = $( root ).controls()
       jSel = $( root ).find "input, button, select"
-      expect( utils.areSameSelection cSel, jSel ).to.equal true
+      expect( sameSelection cSel, jSel ).to.equal true
 
 describe "Controls.validateElement()", ->
 
@@ -54,7 +61,7 @@ describe "Controls.validateElement()", ->
   root = null
 
   beforeEach ->
-    root = trees.byId( "validation" )
+    root = trees.byId "validation"
 
   describe "validation against a passed in function", ->
     validatorA = ->
@@ -63,7 +70,6 @@ describe "Controls.validateElement()", ->
       str + @value is "abc123"
     thisIs = ( obj ) ->
       obj is @
-
 
     it "accepts a function", ->
       els = $( root ).find( ".custom-validation" )
@@ -210,15 +216,17 @@ describe "Control prototype methods", ->
       els = $( root )
       ctls = $( root ).controls()
       ctls.clear()
-      expect( every ctls.filter( "[type='text']" ), ( el ) ->
+      expect every ctls.filter( "[type='text']" ), ( el ) ->
         el.value is ""
-      ).to.equal true
-      expect( every ctls.filter( CHECKABLE ), ( el ) ->
+      .to.equal true
+
+      expect every ctls.filter( CHECKABLE ), ( el ) ->
         el.checked is false
-      )
-      expect( every ctls.asJQuery().find( "option" ), ( el ) ->
+      .to.equal true
+
+      expect every ctls.asJQuery().find( "option" ), ( el ) ->
         el.selected is false
-      )
+      .to.equal true
 
   describe "@propValues()", ->
 
@@ -227,68 +235,115 @@ describe "Control prototype methods", ->
   describe "@check", ->
     it "checks all checkable inputs", ->
       cSel.check()
+
       expect every cSel.filter( CHECKABLE ), ( el ) ->
         el.checked is true
-
-    it "doesn't add a checked property to non checkable elements", ->
-      cSel.check()
-      expect every cSel.not( CHECKABLE ), ( el ) ->
-        el.checked is undefined
+      .to.equal true
 
   describe "@uncheck", ->
     it "unchecks all checkable inputs", ->
       cSel.check()
+
       expect every cSel.filter( CHECKABLE ), ( el ) ->
         el.checked is true
+      .to.equal true
+
       cSel.uncheck()
+
       expect every cSel.filter( CHECKABLE ), ( el ) ->
         el.checked is false
-
-    it "doesn't add a checked property to non checkable elements", ->
-      cSel.uncheck()
-      expect every cSel.not( CHECKABLE ), ( el ) ->
-        el.checked is undefined
+      .to.equal true
 
   describe "@require", ->
     it "makes all selected controls required", ->
       cSel.require()
-      expect every cSel, ( el ) ->
+
+      expect every cSel.not( "button" ), ( el ) ->
         el.required is true
+      .to.equal true
 
   describe "@unrequire", ->
     it "makes all selected controls not required", ->
       cSel.require()
-      expect every cSel, ( el ) ->
+
+      expect every cSel.not( "button" ), ( el ) ->
         el.required is true
+      .to.equal true
+
       cSel.unrequire()
+
       expect every cSel, ( el ) ->
         el.required is false
+      .to.equal true
+
 
   describe "@disable", ->
     it "makes selected controls disabled", ->
       cSel.disable()
-      expect every cSel, ( el ) ->
+      expect every cSel.not( "button" ), ( el ) ->
         el.disabled is true
+      .to.equal true
+
 
   describe "@enable", ->
     it "makes selected controls enabled", ->
       cSel.disable()
-      expect every cSel, ( el ) ->
+      expect every cSel.not( "button" ), ( el ) ->
         el.disabled is true
+      .to.equal true
+
       cSel.enable()
-      expect eery cSel, ( el ) ->
+      expect every cSel.not( "button" ), ( el ) ->
         el.disabled is false
+      .to.equal true
+
+
+  describe "@labels", ->
+    it "selects the labels of the controls", ->
+      root = trees.byId "with-labels"
+      lbls = reduce root.querySelectorAll( "input" ), ( acc, el ) ->
+        if el.labels
+          [].push.apply( acc, el.labels )
+        acc
+      , [] 
+      expect( sameSelection $( root ).controls().labels(), lbls ).to.be.true
 
 
   describe "@valid", ->
+    it "delegates to Controls.validateElement", ->
+      spy = sinon.spy Controls, "validateElement"
+      cSel.valid()
+      expect( spy.called ).to.be.true
+      spy.restore()
+    
+    it "returns true when each element passes Controls.validateElement", ->
+      stub = sinon.stub Controls, "validateElement", -> true
+      expect( cSel.valid() ).to.be.true
+      stub.restore()
+
+      Controls.validateElement.restore()
+    it "returns false when any element fails Controls.validateElement", ->
+      stub = sinon.stub Controls, "validateElement", -> true
+      stub.onCall( 2 ).returns false
+      expect( cSel.valid() ).to.be.false
+      stub.restore()
+
+
+
 
   describe "@bindValidator", ->
+    
 
-  describe "@labels", ->
-  
   return
 
 describe "jQuery traversal methods", ->
+
+  root = undefined
+  ctls = undefined
+  beforeEach ->
+    root = trees.byId "values"
+    ctls = $( root ).controls()
+
   describe "mutating methods return jQuery", ->
     methods = [
       "add"
@@ -312,24 +367,18 @@ describe "jQuery traversal methods", ->
       "siblings"
     ]
 
-    root = undefined
-    ctls = undefined
-    beforeEach ->
-      root = trees.byId( "values" )
-      ctls = $( root ).controls()
-
     methods.forEach ( method ) ->
       it "returns jQuery from @#{ method }()", ->
         selection = ctls[method]()
-        expect( selection instanceof jQuery and selection not instanceof Controls )
-          .to.be.true
+        expect( selection ).to.be.instanceof jQuery
+        expect( selection ).to.not.be instanceof Controls
 
     it "returns jQuery from @map()", ->
       mapResult = ctls.map ->
-      expect( mapResult instanceof jQuery and mapResult not instanceof Controls )
-        .to.equal true
+      expect( mapResult ).to.be.instanceof jQuery
+      expect( mapResult ).to.not.be instanceof Controls
 
-  describe "subset and non-mutating methods return Controls", ->
+  describe "subset methods return Controls", ->
 
     methods = [
       "slice"
@@ -340,15 +389,10 @@ describe "jQuery traversal methods", ->
       "eq"
     ]
 
-    root = undefined
-    ctls = undefined
-    beforeEach ->
-      root = trees.byId( "values" )
-      ctls = $( root ).controls()
-
     methods.forEach ( method ) ->
       it "returns Controls from @#{ method }()", ->
-        expect( ctls[method]() instanceof Controls ).to.be.true
+        expect( ctls[method]() ).to.be.instanceof Controls
 
+  describe "each returns Controls", ->
     it "returns Controls from @each()", ->
-      expect( ctls.each( -> ) instanceof Controls ).to.be.true
+      expect( ctls.each( -> ) ).to.be.instanceof Controls

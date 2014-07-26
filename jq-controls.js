@@ -206,7 +206,7 @@ Controls = (function(_super) {
   };
 
   Controls.prototype.valid = function() {
-    return every(this, isValid);
+    return every(this, Controls.validateElement);
   };
 
   Controls.prototype.bindValidator = function(fn) {};
@@ -219,6 +219,22 @@ Controls = (function(_super) {
 
   Controls.prototype.asJQuery = function() {
     return jQuery(this.get());
+  };
+
+  Controls.prototype.slice = function() {
+    return jQuery.fn.slice.apply(this, arguments).controls();
+  };
+
+  Controls.prototype.first = function() {
+    return this.eq(0);
+  };
+
+  Controls.prototype.last = function() {
+    return this.eq(this.length - 1);
+  };
+
+  Controls.prototype.eq = function(i) {
+    return this.slice(i, 1);
   };
 
   return Controls;

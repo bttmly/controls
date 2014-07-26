@@ -1,5 +1,5 @@
 module.exports =
-  areSameSelection: ( objA, objB ) ->
+  sameSelection: ( objA, objB ) ->
     return false unless objA.length is objB.length
     slice = Function::call.bind Array::slice
     arrA = $.unique slice objA

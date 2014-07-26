@@ -6,73 +6,62 @@ demethodize = function(method) {
 };
 
 module.exports = {
-  each: demethodize(Array.prototype.forEach),
   map: demethodize(Array.prototype.map),
-  reduce: demethodize(Array.prototype.reduce),
-  filter: demethodize(Array.prototype.filter),
-  every: demethodize(Array.prototype.every),
   some: demethodize(Array.prototype.some),
-  slice: demethodize(Array.prototype.slice)
+  every: demethodize(Array.prototype.every),
+  slice: demethodize(Array.prototype.slice),
+  each: demethodize(Array.prototype.forEach),
+  reduce: demethodize(Array.prototype.reduce),
+  filter: demethodize(Array.prototype.filter)
 };
 
 
 },{}],2:[function(require,module,exports){
-var $, CHECKABLE, Controls, TAGS, Values, assert, chai, each, every, expect, filter, first, htmlFiles, jQuery, map, reduce, sameSelection, should, slice, some, trees, utils, _ref,
+var BUTTON, CHECK, CHECKABLE, Controls, RADIO, TAGS, Values, every, expect, filter, first, htmlFiles, jQuery, map, reduce, sameSelection, sinon, slice, some, trees, _ref, _ref1,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-$ = jQuery = window.jQuery;
+jQuery = window.jQuery;
 
-Controls = jQuery.Controls;
+Controls = jQuery.Controls, Values = jQuery.Values;
 
-Values = jQuery.Values;
+sinon = window.sinon;
 
-chai = window.chai;
+expect = window.chai.expect;
 
-assert = chai.assert;
+sameSelection = require("./spec-utilities.coffee").sameSelection;
 
-expect = chai.expect;
+_ref = require("./array-generics.coffee"), map = _ref.map, some = _ref.some, every = _ref.every, slice = _ref.slice, filter = _ref.filter, reduce = _ref.reduce;
 
-should = chai.should();
-
-utils = require("./spec-utilities.coffee");
-
-sameSelection = utils.areSameSelection;
-
-_ref = require("./array-generics.coffee"), each = _ref.each, map = _ref.map, reduce = _ref.reduce, filter = _ref.filter, every = _ref.every, some = _ref.some, slice = _ref.slice;
-
-TAGS = ["input", "select", "button", "textarea"].join(", ");
-
-CHECKABLE = ["input[type='checkbox']", "input[type='radio']"].join(", ");
+_ref1 = require("./selectors.coffee"), CHECKABLE = _ref1.CHECKABLE, BUTTON = _ref1.BUTTON, TAGS = _ref1.TAGS, RADIO = _ref1.RADIO, CHECK = _ref1.CHECK;
 
 first = function(arr) {
   return arr[0];
 };
 
-htmlFiles = ["./spec/html/values.html", "./spec/html/mixed.html", "./spec/html/validation.html", "./spec/html/with-initial-state.html"];
+htmlFiles = ["./spec/html/values.html", "./spec/html/mixed.html", "./spec/html/validation.html", "./spec/html/with-initial-state.html", "./spec/html/with-labels.html"];
 
-trees = (function() {
-  var hash;
-  hash = {};
+trees = window.trees = (function() {
+  var storage;
+  storage = {};
   return {
     byId: function(id) {
-      if (hash[id]) {
-        return $(hash[id])[0];
+      if (storage[id]) {
+        return $.parseHTML(storage[id])[0];
       } else {
         return null;
       }
     },
-    addTree: function(id, tree) {
-      return hash[id] = tree;
+    addTree: function(htmlStr) {
+      var id;
+      id = $(htmlStr).attr("id");
+      console.log(id);
+      return storage[id] = htmlStr;
     }
   };
 })();
 
 $.when.apply($, htmlFiles.map($.get)).then(function() {
-  slice(arguments).map(first).forEach(function(htmlStr) {
-    var id;
-    id = $(htmlStr).attr("id");
-    return trees.addTree(id, htmlStr);
-  });
+  slice(arguments).map(first).map(trees.addTree);
   return mocha.run();
 });
 
@@ -86,7 +75,7 @@ describe("jQuery.fn.controls()", function() {
       root = trees.byId("values");
       cSel = $(root).controls();
       jSel = $(root).find("input, button, select");
-      return expect(utils.areSameSelection(cSel, jSel)).to.equal(true);
+      return expect(sameSelection(cSel, jSel)).to.equal(true);
     });
   });
 });
@@ -289,140 +278,175 @@ describe("Control prototype methods", function() {
       })).to.equal(true);
       expect(every(ctls.filter(CHECKABLE), function(el) {
         return el.checked === false;
-      }));
+      })).to.equal(true);
       return expect(every(ctls.asJQuery().find("option"), function(el) {
         return el.selected === false;
-      }));
+      })).to.equal(true);
     });
   });
   describe("@propValues()", function() {});
   describe("@values()", function() {});
   describe("@check", function() {
-    it("checks all checkable inputs", function() {
+    return it("checks all checkable inputs", function() {
       cSel.check();
       return expect(every(cSel.filter(CHECKABLE), function(el) {
         return el.checked === true;
-      }));
-    });
-    return it("doesn't add a checked property to non checkable elements", function() {
-      cSel.check();
-      return expect(every(cSel.not(CHECKABLE), function(el) {
-        return el.checked === void 0;
-      }));
+      })).to.equal(true);
     });
   });
   describe("@uncheck", function() {
-    it("unchecks all checkable inputs", function() {
+    return it("unchecks all checkable inputs", function() {
       cSel.check();
       expect(every(cSel.filter(CHECKABLE), function(el) {
         return el.checked === true;
-      }));
+      })).to.equal(true);
       cSel.uncheck();
       return expect(every(cSel.filter(CHECKABLE), function(el) {
         return el.checked === false;
-      }));
-    });
-    return it("doesn't add a checked property to non checkable elements", function() {
-      cSel.uncheck();
-      return expect(every(cSel.not(CHECKABLE), function(el) {
-        return el.checked === void 0;
-      }));
+      })).to.equal(true);
     });
   });
   describe("@require", function() {
     return it("makes all selected controls required", function() {
       cSel.require();
-      return expect(every(cSel, function(el) {
+      return expect(every(cSel.not("button"), function(el) {
         return el.required === true;
-      }));
+      })).to.equal(true);
     });
   });
   describe("@unrequire", function() {
     return it("makes all selected controls not required", function() {
       cSel.require();
-      expect(every(cSel, function(el) {
+      expect(every(cSel.not("button"), function(el) {
         return el.required === true;
-      }));
+      })).to.equal(true);
       cSel.unrequire();
       return expect(every(cSel, function(el) {
         return el.required === false;
-      }));
+      })).to.equal(true);
     });
   });
   describe("@disable", function() {
     return it("makes selected controls disabled", function() {
       cSel.disable();
-      return expect(every(cSel, function(el) {
+      return expect(every(cSel.not("button"), function(el) {
         return el.disabled === true;
-      }));
+      })).to.equal(true);
     });
   });
   describe("@enable", function() {
     return it("makes selected controls enabled", function() {
       cSel.disable();
-      expect(every(cSel, function(el) {
+      expect(every(cSel.not("button"), function(el) {
         return el.disabled === true;
-      }));
+      })).to.equal(true);
       cSel.enable();
-      return expect(eery(cSel, function(el) {
+      return expect(every(cSel.not("button"), function(el) {
         return el.disabled === false;
-      }));
+      })).to.equal(true);
     });
   });
-  describe("@valid", function() {});
+  describe("@labels", function() {
+    return it("selects the labels of the controls", function() {
+      var lbls, root;
+      root = trees.byId("with-labels");
+      lbls = reduce(root.querySelectorAll("input"), function(acc, el) {
+        if (el.labels) {
+          [].push.apply(acc, el.labels);
+        }
+        return acc;
+      }, []);
+      return expect(sameSelection($(root).controls().labels(), lbls)).to.be["true"];
+    });
+  });
+  describe("@valid", function() {
+    it("delegates to Controls.validateElement", function() {
+      var spy;
+      spy = sinon.spy(Controls, "validateElement");
+      cSel.valid();
+      expect(spy.called).to.be["true"];
+      return spy.restore();
+    });
+    it("returns true when each element passes Controls.validateElement", function() {
+      var stub;
+      stub = sinon.stub(Controls, "validateElement", function() {
+        return true;
+      });
+      expect(cSel.valid()).to.be["true"];
+      stub.restore();
+      return Controls.validateElement.restore();
+    });
+    return it("returns false when any element fails Controls.validateElement", function() {
+      var stub;
+      stub = sinon.stub(Controls, "validateElement", function() {
+        return true;
+      });
+      stub.onCall(2).returns(false);
+      expect(cSel.valid()).to.be["false"];
+      return stub.restore();
+    });
+  });
   describe("@bindValidator", function() {});
-  describe("@labels", function() {});
 });
 
 describe("jQuery traversal methods", function() {
+  var ctls, root;
+  root = void 0;
+  ctls = void 0;
+  beforeEach(function() {
+    root = trees.byId("values");
+    return ctls = $(root).controls();
+  });
   describe("mutating methods return jQuery", function() {
-    var ctls, methods, root;
+    var methods;
     methods = ["add", "addBack", "andSelf", "children", "closest", "contents", "end", "find", "next", "nextAll", "nextUntil", "offsetParent", "parent", "parents", "parentsUntil", "prev", "prevAll", "prevUntil", "siblings"];
-    root = void 0;
-    ctls = void 0;
-    beforeEach(function() {
-      root = trees.byId("values");
-      return ctls = $(root).controls();
-    });
     methods.forEach(function(method) {
       return it("returns jQuery from @" + method + "()", function() {
         var selection;
         selection = ctls[method]();
-        return expect(selection instanceof jQuery && !(selection instanceof Controls)).to.be["true"];
+        expect(selection).to.be["instanceof"](jQuery);
+        return expect(selection).to.not.be instanceof Controls;
       });
     });
     return it("returns jQuery from @map()", function() {
       var mapResult;
       mapResult = ctls.map(function() {});
-      return expect(mapResult instanceof jQuery && !(mapResult instanceof Controls)).to.equal(true);
+      expect(mapResult).to.be["instanceof"](jQuery);
+      return expect(mapResult).to.not.be instanceof Controls;
     });
   });
-  return describe("subset and non-mutating methods return Controls", function() {
-    var ctls, methods, root;
+  describe("subset methods return Controls", function() {
+    var methods;
     methods = ["slice", "first", "last", "filter", "not", "eq"];
-    root = void 0;
-    ctls = void 0;
-    beforeEach(function() {
-      root = trees.byId("values");
-      return ctls = $(root).controls();
-    });
-    methods.forEach(function(method) {
+    return methods.forEach(function(method) {
       return it("returns Controls from @" + method + "()", function() {
-        return expect(ctls[method]() instanceof Controls).to.be["true"];
+        return expect(ctls[method]()).to.be["instanceof"](Controls);
       });
     });
+  });
+  return describe("each returns Controls", function() {
     return it("returns Controls from @each()", function() {
-      return expect(ctls.each(function() {}) instanceof Controls).to.be["true"];
+      return expect(ctls.each(function() {})).to.be["instanceof"](Controls);
     });
   });
 });
 
 
-},{"./array-generics.coffee":1,"./spec-utilities.coffee":3}],3:[function(require,module,exports){
+},{"./array-generics.coffee":1,"./selectors.coffee":3,"./spec-utilities.coffee":4}],3:[function(require,module,exports){
+module.exports = {
+  CHECKABLE: "input[type='radio'], input[type='checkbox']",
+  BUTTON: "input[type='button'], button",
+  TAGS: "input, select, button, textarea",
+  RADIO: "[type='radio']",
+  CHECK: "[type='checkbox']"
+};
+
+
+},{}],4:[function(require,module,exports){
 var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 module.exports = {
-  areSameSelection: function(objA, objB) {
+  sameSelection: function(objA, objB) {
     var arrA, arrB, slice;
     if (objA.length !== objB.length) {
       return false;

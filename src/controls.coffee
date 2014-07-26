@@ -99,12 +99,14 @@ class Controls extends jQuery
     @not( CHECKABLE ).val ""
     @
 
+  # adapted from space-pen
   pushStack: (elems) ->
     ret = jQuery.merge do jQuery, elems
     ret.prevObject = this
     ret.context = @context
     ret
 
+  # adapted from space-pen
   end: ->
     @prevObject ? jQuery null
 
@@ -122,7 +124,7 @@ class Controls extends jQuery
   selects: -> @filter "select"
   ofType: ( type ) -> @filter "[type=#{ type }]"
 
-  valid: -> every @, isValid
+  valid: -> every @, Controls.validateElement
 
   bindValidator: ( fn ) ->
   
@@ -133,5 +135,17 @@ class Controls extends jQuery
 
   asJQuery: ->
     jQuery @get()
+
+  slice: ->
+    jQuery.fn.slice.apply( @, arguments ).controls()
+
+  first: ->
+    @eq 0
+
+  last: ->
+    @eq @length - 1
+
+  eq: ( i ) ->
+    @slice i, 1
 
 module.exports = Controls
