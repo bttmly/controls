@@ -1,14 +1,10 @@
+'use strict';
+
 var gulp = require( 'gulp' );
-var coffeelint = require( 'gulp-coffeelint' );
 var gutil = require( 'gulp-util' );
 var source = require( 'vinyl-source-stream' );
+var browserify = require( 'browserify' );
 var watchify = require( 'watchify' );
-
-gulp.task( 'coffeelint', function() {
-  gulp.src([ "./src/*.coffee", "./spec/*.coffee" ])
-    .pipe( coffeelint() )
-    .pipe( coffeelint.reporter() );
-});
 
 gulp.task( 'watch', function() {
 
@@ -16,13 +12,23 @@ gulp.task( 'watch', function() {
     {
       name: 'lib',
       source: 'jq-controls.js',
-      dest: './',
-      bundler: watchify('./src/jquery-controls.coffee'),
+      dest: './dist/',
+      bundler: watchify( browserify({
+        entries: './src/jquery-controls.coffee',
+        cache: {},
+        packageCache: {},
+        fullPaths: true
+      }))
     }, {
       name: 'spec',
       source: 'jq-controls-spec.js',
       dest: './spec/',
-      bundler: watchify( './spec/controls-spec.coffee' )
+      bundler: watchify( browserify({
+        entries: './spec/controls-spec.coffee',
+        cache: {},
+        packageCache: {},
+        fullPaths: true
+      }))
     }
   ];
 
@@ -37,7 +43,7 @@ gulp.task( 'watch', function() {
         })
         .pipe( source( item.source ) )
         .pipe( gulp.dest( item.dest ) );
-      console.log( item.name + " bundled." );
+      console.log( item.name + ' bundled.' );
       return bundle;
     };
     item.bundler.transform( 'coffeeify' );

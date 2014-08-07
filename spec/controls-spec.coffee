@@ -1,3 +1,6 @@
+if !Function::bind
+  Function::bind = require "function-bind"
+
 jQuery = window.jQuery
 { Controls, Values } = jQuery
 sinon = window.sinon
@@ -40,10 +43,15 @@ trees = window.trees = do ->
 $.when.apply $, htmlFiles.map $.get
   .then ->
     slice( arguments ).map( first ).map( trees.addTree )
-    mocha.run()
+    if window.mochaPhantomJS
+      mochaPhantomJS.run()
+    if mocha
+      mocha.run()
+    else
+      throw new Error "No Mocha!"
 
 describe "jQuery.fn.controls()", ->
-  
+
   describe "basics", ->
     it "exists", ->
       expect( jQuery.fn.controls ).to.be.a "function"
@@ -305,7 +313,7 @@ describe "Control prototype methods", ->
         if el.labels
           [].push.apply( acc, el.labels )
         acc
-      , [] 
+      , []
       expect( sameSelection $( root ).controls().labels(), lbls ).to.be.true
 
 
@@ -316,7 +324,7 @@ describe "Control prototype methods", ->
       cSel.valid()
       expect( stub.called ).to.be.true
       stub.restore()
-    
+
     it "returns true when each element passes Controls.validateElement", ->
       stub = sinon.stub Controls, "validateElement", -> true
       expect( cSel.valid() ).to.be.true
@@ -329,11 +337,9 @@ describe "Control prototype methods", ->
       expect( stub.callCount ).to.equal 1
       stub.restore()
 
-
-
-
   describe "@bindValidator", ->
-    
+
+    it ""
 
   return
 

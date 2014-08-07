@@ -1,4 +1,40 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var ERROR_MESSAGE = "Function.prototype.bind called on incompatible "
+var slice = Array.prototype.slice
+
+module.exports = bind
+
+function bind(that) {
+    var target = this
+    if (typeof target !== "function") {
+        throw new TypeError(ERROR_MESSAGE + target)
+    }
+    var args = slice.call(arguments, 1)
+
+    return function bound() {
+        if (this instanceof bound) {
+            var F = function () {}
+            F.prototype = target.prototype
+            var self = new F()
+
+            var result = target.apply(
+                self,
+                args.concat(slice.call(arguments))
+            )
+            if (Object(result) === result) {
+                return result
+            }
+            return self
+        } else {
+            return target.apply(
+                that,
+                args.concat(slice.call(arguments))
+            )
+        }
+    }
+}
+
+},{}],2:[function(require,module,exports){
 var demethodize;
 
 demethodize = function(method) {
@@ -16,9 +52,13 @@ module.exports = {
 };
 
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var BUTTON, CHECK, CHECKABLE, Controls, RADIO, TAGS, Values, every, expect, filter, first, htmlFiles, jQuery, map, reduce, sameSelection, sinon, slice, some, trees, _ref, _ref1,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+if (!Function.prototype.bind) {
+  Function.prototype.bind = require("function-bind");
+}
 
 jQuery = window.jQuery;
 
@@ -62,7 +102,14 @@ trees = window.trees = (function() {
 
 $.when.apply($, htmlFiles.map($.get)).then(function() {
   slice(arguments).map(first).map(trees.addTree);
-  return mocha.run();
+  if (window.mochaPhantomJS) {
+    mochaPhantomJS.run();
+  }
+  if (mocha) {
+    return mocha.run();
+  } else {
+    throw new Error("No Mocha!");
+  }
 });
 
 describe("jQuery.fn.controls()", function() {
@@ -386,7 +433,9 @@ describe("Control prototype methods", function() {
       return stub.restore();
     });
   });
-  describe("@bindValidator", function() {});
+  describe("@bindValidator", function() {
+    return it("");
+  });
 });
 
 describe("jQuery traversal methods", function() {
@@ -432,7 +481,7 @@ describe("jQuery traversal methods", function() {
 });
 
 
-},{"./array-generics.coffee":1,"./selectors.coffee":3,"./spec-utilities.coffee":4}],3:[function(require,module,exports){
+},{"./array-generics.coffee":2,"./selectors.coffee":4,"./spec-utilities.coffee":5,"function-bind":1}],4:[function(require,module,exports){
 module.exports = {
   CHECKABLE: "input[type='radio'], input[type='checkbox']",
   BUTTON: "input[type='button'], button",
@@ -442,16 +491,18 @@ module.exports = {
 };
 
 
-},{}],4:[function(require,module,exports){
-var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+},{}],5:[function(require,module,exports){
+var slice,
+  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+slice = Function.prototype.call.bind(Array.prototype.slice);
 
 module.exports = {
   sameSelection: function(objA, objB) {
-    var arrA, arrB, slice;
+    var arrA, arrB;
     if (objA.length !== objB.length) {
       return false;
     }
-    slice = Function.prototype.call.bind(Array.prototype.slice);
     arrA = $.unique(slice(objA));
     arrB = $.unique(slice(objB));
     return arrA.every(function(el) {
@@ -461,4 +512,4 @@ module.exports = {
 };
 
 
-},{}]},{},[2])
+},{}]},{},[3])

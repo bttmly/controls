@@ -2,17 +2,32 @@
   "name": "index",
   "private": true,
   "version": "0.0.0",
-  "dependencies": {
-    "browserify": "^4.2.0",
-    "watchify": "^0.10.2",
-    "coffee-script": "^1.7.1",
-    "through": "^2.3.4",
-    "coffeeify": "^0.6.0",
-    "brfs": "^1.1.2",
-    "gulp": "^3.8.6"
+  "scripts": {
+    "test": "testling"
   },
+  "dependencies": {},
   "devDependencies": {
+    "browserify": "^5.9.1",
+    "coffeeify": "^0.7.0",
+    "function-bind": "^0.1.0",
+    "gulp": "^3.8.7",
+    "gulp-util": "^3.0.0",
     "jsdom": "^0.11.1",
-    "gulp": "^3.8.6"
+    "mocha": "^1.21.4",
+    "testling": "^1.7.0",
+    "vinyl-source-stream": "^0.1.1",
+    "watchify": "^1.0.1"
+  },
+  "testling": {
+    "harness": "mocha-bdd",
+    "scripts": [
+      "./spec/bind.js",
+      "./bower_components/mocha/mocha.js",
+      "./bower_components/chai/chai.js",
+      "./bower_components/jquery/dist/jquery.js",
+      "./bower_components/sinon/index.js",
+      "./dist/jq-controls.js",
+      "./spec/jq-controls-spec.js"
+    ]
   }
 }

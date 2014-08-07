@@ -1,5 +1,5 @@
-demethodize = ( fn ) ->
-  Function::call.bind( fn )
+demethodize = ( method ) ->
+  Function::call.bind method
 
 arrayMethods = [
   "map"
@@ -18,9 +18,9 @@ utils =
       result[key] = callback value, key, obj
     result
 
-for method in arrayMethods
-  do ( method ) ->
-    utils[method] = demethodize Array::[method]
+
+arrayMethods.forEach ( method ) ->
+  utils[method] = demethodize Array::[method]
 
 utils.each = utils.forEach
 

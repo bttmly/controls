@@ -19,9 +19,12 @@ propMap = ( jqCollection, keyProp, valProp ) ->
 getControlNodes = ( nodes ) ->
   reduce nodes, ( acc, node ) ->
     if node.matches TAGS
-      acc.concat node
+      # acc.concat node
+      acc.push node
     else
-      acc.concat slice node.querySelectorAll TAGS
+      # acc.concat slice node.querySelectorAll TAGS
+      [].push.apply slice node.querySelectorAll TAGS
+    acc
   , []
 
 class Controls extends jQuery
@@ -102,7 +105,7 @@ class Controls extends jQuery
   # adapted from space-pen
   pushStack: (elems) ->
     ret = jQuery.merge do jQuery, elems
-    ret.prevObject = this
+    ret.prevObject = @
     ret.context = @context
     ret
 
