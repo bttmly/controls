@@ -3,12 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "test": "testling"
+    "test": "mocha-phantomjs -R spec index.html"
   },
   "dependencies": {},
   "devDependencies": {
+    "brfs": "^1.2.0",
     "browserify": "^5.9.1",
     "coffeeify": "^0.7.0",
+    "express": "^4.8.2",
     "function-bind": "^0.1.0",
     "gulp": "^3.8.7",
     "gulp-util": "^3.0.0",
@@ -20,14 +22,6 @@
   },
   "testling": {
     "harness": "mocha-bdd",
-    "scripts": [
-      "./spec/bind.js",
-      "./bower_components/mocha/mocha.js",
-      "./bower_components/chai/chai.js",
-      "./bower_components/jquery/dist/jquery.js",
-      "./bower_components/sinon/index.js",
-      "./dist/jq-controls.js",
-      "./spec/jq-controls-spec.js"
-    ]
+    "html": "index.html"
   }
 }

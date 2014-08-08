@@ -1,5 +1,4 @@
-if !Function::bind
-  Function::bind = require "function-bind"
+fs = require "fs"
 
 jQuery = window.jQuery
 { Controls, Values } = jQuery
@@ -21,16 +20,17 @@ sinon = window.sinon
   RADIO
   CHECK } = require "./selectors.coffee"
 
-first = ( arr ) -> arr[0]
+first = ( arr ) -> arr[ 0 ]
+last = ( arr ) -> arr[ arr.length - 1 ]
 
-htmlFiles = [
-  "./spec/html/values.html"
-  "./spec/html/mixed.html"
-  "./spec/html/validation.html"
-  "./spec/html/with-initial-state.html"
-  "./spec/html/with-labels.html"
-]
-
+# htmlFiles = [
+#   "./spec/html/values.html"
+#   "./spec/html/mixed.html"
+#   "./spec/html/validation.html"
+#   "./spec/html/with-initial-state.html"
+#   "./spec/html/with-labels.html"
+# ]
+#
 trees = window.trees = do ->
   storage = {}
   byId: ( id ) ->
@@ -40,15 +40,18 @@ trees = window.trees = do ->
     console.log id
     storage[id] = htmlStr
 
-$.when.apply $, htmlFiles.map $.get
-  .then ->
-    slice( arguments ).map( first ).map( trees.addTree )
-    if window.mochaPhantomJS
-      mochaPhantomJS.run()
-    if mocha
-      mocha.run()
-    else
-      throw new Error "No Mocha!"
+[
+  fs.readFileSync "#{ __dirname }/html/values.html", "utf8"
+  fs.readFileSync "#{ __dirname }/html/mixed.html", "utf8"
+  fs.readFileSync "#{ __dirname }/html/validation.html", "utf8"
+  fs.readFileSync "#{ __dirname }/html/with-initial-state.html", "utf8"
+  fs.readFileSync "#{ __dirname }/html/with-labels.html", "utf8"
+].map trees.addTree.bind trees
+
+# $.when.apply $, htmlFiles.map $.get
+#   .then ->
+#     slice( arguments ).map( first ).map( trees.addTree )
+
 
 describe "jQuery.fn.controls()", ->
 
@@ -259,6 +262,8 @@ describe "Control prototype methods", ->
       cSel.uncheck()
 
       expect every cSel.filter( CHECKABLE ), ( el ) ->
+        if el.checked isnt false
+          console.log el
         el.checked is false
       .to.equal true
 
@@ -311,7 +316,7 @@ describe "Control prototype methods", ->
       root = trees.byId "with-labels"
       lbls = reduce root.querySelectorAll( "input" ), ( acc, el ) ->
         if el.labels
-          [].push.apply( acc, el.labels )
+          [].push.apply acc, slice el.labels
         acc
       , []
       expect( sameSelection $( root ).controls().labels(), lbls ).to.be.true
@@ -403,3 +408,17 @@ describe "jQuery traversal methods", ->
   describe "each returns Controls", ->
     it "returns Controls from @each()", ->
       expect( ctls.each( -> ) ).to.be.instanceof Controls
+
+
+  describe "failure", ->
+    it "fails", ->
+      expect( true ).to.equal false
+
+
+if window.mochaPhantomJS
+  console.log "here"
+  window.mochaPhantomJS.run()
+if mocha
+  mocha.run()
+else
+  throw new Error "No Mocha!"

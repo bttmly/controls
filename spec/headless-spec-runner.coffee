@@ -1,0 +1,9 @@
+{spawn} = require 'child_process'
+path = require 'path'
+express = require 'express'
+
+app = express()
+app.use express.static path.resolve __dirname, ".."
+app.listen 3000, ->
+  phantomjs = spawn "phantomjs", [ path.join __dirname, 'mocha-spec-runner.coffee' ], stdio: 'inherit'
+  phantomjs.on 'close', ( code ) -> process.exit code

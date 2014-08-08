@@ -49,7 +49,7 @@ class Controls extends jQuery
 
     unless opt.noResetState
       @setResetState()
-  
+
   setResetState: ->
     @each ( i, el ) ->
       jQuery.data @, "resetState",
@@ -83,7 +83,7 @@ class Controls extends jQuery
 
   reset: ->
     @each ->
-      data = jQuery.data @, "resetState" 
+      data = jQuery.data @, "resetState"
       @required = data.required
       @disabled = data.disabled
       if @matches CHECKABLE
@@ -121,6 +121,7 @@ class Controls extends jQuery
   disable: -> @attr "disabled", "disabled"
   enable: -> @removeAttr "disabled"
 
+
   # common filter convenience methods
   buttons: -> @filter "button"
   inputs: -> @filter "input"
@@ -130,7 +131,7 @@ class Controls extends jQuery
   valid: -> every @, Controls.validateElement
 
   bindValidator: ( fn ) ->
-  
+
   labels: ->
     reduce @, ( acc, el ) ->
       acc.add( el.labels )

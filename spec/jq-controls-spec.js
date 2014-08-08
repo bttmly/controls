@@ -1,64 +1,8 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var ERROR_MESSAGE = "Function.prototype.bind called on incompatible "
-var slice = Array.prototype.slice
-
-module.exports = bind
-
-function bind(that) {
-    var target = this
-    if (typeof target !== "function") {
-        throw new TypeError(ERROR_MESSAGE + target)
-    }
-    var args = slice.call(arguments, 1)
-
-    return function bound() {
-        if (this instanceof bound) {
-            var F = function () {}
-            F.prototype = target.prototype
-            var self = new F()
-
-            var result = target.apply(
-                self,
-                args.concat(slice.call(arguments))
-            )
-            if (Object(result) === result) {
-                return result
-            }
-            return self
-        } else {
-            return target.apply(
-                that,
-                args.concat(slice.call(arguments))
-            )
-        }
-    }
-}
-
-},{}],2:[function(require,module,exports){
-var demethodize;
-
-demethodize = function(method) {
-  return Function.prototype.call.bind(method);
-};
-
-module.exports = {
-  map: demethodize(Array.prototype.map),
-  some: demethodize(Array.prototype.some),
-  every: demethodize(Array.prototype.every),
-  slice: demethodize(Array.prototype.slice),
-  each: demethodize(Array.prototype.forEach),
-  reduce: demethodize(Array.prototype.reduce),
-  filter: demethodize(Array.prototype.filter)
-};
-
-
-},{}],3:[function(require,module,exports){
-var BUTTON, CHECK, CHECKABLE, Controls, RADIO, TAGS, Values, every, expect, filter, first, htmlFiles, jQuery, map, reduce, sameSelection, sinon, slice, some, trees, _ref, _ref1,
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./spec/controls-spec.coffee":[function(require,module,exports){
+var BUTTON, CHECK, CHECKABLE, Controls, RADIO, TAGS, Values, every, expect, filter, first, fs, jQuery, last, map, reduce, sameSelection, sinon, slice, some, trees, _ref, _ref1,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-if (!Function.prototype.bind) {
-  Function.prototype.bind = require("function-bind");
-}
+
 
 jQuery = window.jQuery;
 
@@ -78,7 +22,9 @@ first = function(arr) {
   return arr[0];
 };
 
-htmlFiles = ["./spec/html/values.html", "./spec/html/mixed.html", "./spec/html/validation.html", "./spec/html/with-initial-state.html", "./spec/html/with-labels.html"];
+last = function(arr) {
+  return arr[arr.length - 1];
+};
 
 trees = window.trees = (function() {
   var storage;
@@ -100,17 +46,7 @@ trees = window.trees = (function() {
   };
 })();
 
-$.when.apply($, htmlFiles.map($.get)).then(function() {
-  slice(arguments).map(first).map(trees.addTree);
-  if (window.mochaPhantomJS) {
-    mochaPhantomJS.run();
-  }
-  if (mocha) {
-    return mocha.run();
-  } else {
-    throw new Error("No Mocha!");
-  }
-});
+["<div class=\"wrapper\" id=\"values\">\n\n  <div class=\"inputs\">\n    <input type=\"text\" value=\"text\">\n    <input type=\"email\" value=\"email\">\n    <input type=\"url\" value=\"url\">\n  </div>\n\n  <div class=\"checkboxes\">\n    <input type=\"checkbox\" name=\"checkbox\" value=\"checkbox-1\">\n    <input type=\"checkbox\" name=\"checkbox\" value=\"checkbox-2\" checked>\n    <input type=\"checkbox\" name=\"checkbox\" value=\"checkbox-3\">\n    <input type=\"checkbox\" name=\"checkbox\" value=\"checkbox-4\" checked>\n  </div>\n\n  <div class=\"radios\">\n    <input type=\"radio\" name=\"radio\" value=\"radio-1\">\n    <input type=\"radio\" name=\"radio\" value=\"radio-2\">\n    <input type=\"radio\" name=\"radio\" value=\"radio-3\" checked>\n    <input type=\"radio\" name=\"radio\" value=\"radio-4\">\n  </div>\n\n  <div class=\"select-single\">\n    <select>\n      <option value=\"ss-value-1\">1</option>\n      <option value=\"ss-value-2\">2</option>\n      <option value=\"ss-value-3\" selected>3</option>\n    </select>\n  </div>\n\n  <div class=\"select-multiple\">\n    <select multiple>\n      <option value=\"ss-value-1\">1</option>\n      <option value=\"ss-value-2\" selected>2</option>\n      <option value=\"ss-value-3\">3</option>\n      <option value=\"ss-value-4\" selected>4</option>\n    </select>\n  </div>\n\n  <div class=\"buttons\">\n    <button></button>\n    <button></button>\n    <button></button>\n  </div>\n\n\n</div>", "<div class=\"wrapper\" id=\"mixed\">\n\n  <h1>Heading 1</h1>\n\n  <button>Button</button>\n\n  <ul>\n    <li>List item 1</li>\n    <li>List item 2</li>\n  </ul>\n\n  <input type=\"text\">\n\n  <h2>Heading 2</h2>\n\n  <select>\n    <option>One</option>\n    <option>Two</option>\n  </select>\n\n  <p>A paragraph, <span>and a span</span>.</p>\n\n  <textarea>\n    Textarea\n  </textarea>\n  \n</div>", "<div class=\"wrapper\" id=\"validation\">\n\n  <input class=\"custom-validation valid\" type=\"text\" value=\"123\">\n  <input class=\"custom-validation invalid\" type=\"text\" value=\"abc\">\n\n  <input class=\"attr-validation valid\" data-control-validation=\"numeric\" type=\"text\" value=\"123\">\n  <input class=\"attr-validation invalid\" data-control-validation=\"numeric\" type=\"text\" value=\"abc\">\n\n  <input class=\"data-validation valid\" type=\"text\" value=\"123\">\n  <input class=\"data-validation invalid\" type=\"text\" value=\"abc\">\n\n  <input class=\"html5-validation valid\" type=\"text\" value=\"123\" required>\n  <input class=\"html5-validation invalid\" type=\"text\" value=\"\" required>\n\n</div>", "<div class=\"wrapper\" id=\"initialState\">\n\n  <div class=\"inputs\">\n    <input id=\"text1\" type=\"text\" value=\"one\">\n    <input id=\"text2\" type=\"text\" value=\"two\" required>\n    <input id=\"text3\" type=\"text\" value=\"three\" disabled>\n    <input id=\"text4\" type=\"text\" value=\"four\" required disabled>\n  </div>\n  \n  <div class=\"checkboxes\">\n    <input id=\"check1\" type=\"checkbox\" name=\"checkbox\" value=\"one\" checked>\n    <input id=\"check2\" type=\"checkbox\" name=\"checkbox\" value=\"two\" checked>\n  </div>\n\n  <div class=\"radios\">\n    <input id=\"check1\" type=\"radio\" name=\"radio\" value=\"one\" checked>\n  </div>\n\n  <div class=\"select-single\">\n    <select>\n      <option value=\"one\">1</option>\n      <option value=\"two\" selected>2</option>\n    </select>\n  </div>\n\n  <div class=\"select-multiple\">\n    <select multiple>\n      <option value=\"one\" selected>1</option>\n      <option value=\"two\" selected>2</option>\n    </select>\n  </div>\n\n</div>", "<div id=\"with-labels\">\n\n  <label class=\"lbl\" id=\"wrapping\">\n    Check this box\n    <input value=\"this-thing\" type=\"checkbox\" id=\"inside-label\">\n  </label>\n\n  <label class=\"lbl\" for=\"outside-label\" id=\"not-wrapping\">\n    Check this other box\n  </label>\n  <input value=\"that-thing\" type=\"checkbox\" id=\"outside-label\">\n\n  <label for=\"nothing\">This label isn't for anything</label>\n\n</div>"].map(trees.addTree.bind(trees));
 
 describe("jQuery.fn.controls()", function() {
   return describe("basics", function() {
@@ -349,6 +285,9 @@ describe("Control prototype methods", function() {
       })).to.equal(true);
       cSel.uncheck();
       return expect(every(cSel.filter(CHECKABLE), function(el) {
+        if (el.checked !== false) {
+          console.log(el);
+        }
         return el.checked === false;
       })).to.equal(true);
     });
@@ -399,7 +338,7 @@ describe("Control prototype methods", function() {
       root = trees.byId("with-labels");
       lbls = reduce(root.querySelectorAll("input"), function(acc, el) {
         if (el.labels) {
-          [].push.apply(acc, el.labels);
+          [].push.apply(acc, slice(el.labels));
         }
         return acc;
       }, []);
@@ -473,15 +412,51 @@ describe("jQuery traversal methods", function() {
       });
     });
   });
-  return describe("each returns Controls", function() {
+  describe("each returns Controls", function() {
     return it("returns Controls from @each()", function() {
       return expect(ctls.each(function() {})).to.be["instanceof"](Controls);
     });
   });
+  return describe("failure", function() {
+    return it("fails", function() {
+      return expect(true).to.equal(false);
+    });
+  });
 });
 
+if (window.mochaPhantomJS) {
+  console.log("here");
+  window.mochaPhantomJS.run();
+}
 
-},{"./array-generics.coffee":2,"./selectors.coffee":4,"./spec-utilities.coffee":5,"function-bind":1}],4:[function(require,module,exports){
+if (mocha) {
+  mocha.run();
+} else {
+  throw new Error("No Mocha!");
+}
+
+
+
+},{"./array-generics.coffee":"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/spec/array-generics.coffee","./selectors.coffee":"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/spec/selectors.coffee","./spec-utilities.coffee":"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/spec/spec-utilities.coffee"}],"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/spec/array-generics.coffee":[function(require,module,exports){
+var demethodize;
+
+demethodize = function(method) {
+  return Function.prototype.call.bind(method);
+};
+
+module.exports = {
+  map: demethodize(Array.prototype.map),
+  some: demethodize(Array.prototype.some),
+  every: demethodize(Array.prototype.every),
+  slice: demethodize(Array.prototype.slice),
+  each: demethodize(Array.prototype.forEach),
+  reduce: demethodize(Array.prototype.reduce),
+  filter: demethodize(Array.prototype.filter)
+};
+
+
+
+},{}],"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/spec/selectors.coffee":[function(require,module,exports){
 module.exports = {
   CHECKABLE: "input[type='radio'], input[type='checkbox']",
   BUTTON: "input[type='button'], button",
@@ -491,7 +466,8 @@ module.exports = {
 };
 
 
-},{}],5:[function(require,module,exports){
+
+},{}],"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/spec/spec-utilities.coffee":[function(require,module,exports){
 var slice,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -512,4 +488,5 @@ module.exports = {
 };
 
 
-},{}]},{},[3])
+
+},{}]},{},["./spec/controls-spec.coffee"]);

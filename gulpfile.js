@@ -47,6 +47,7 @@ gulp.task( 'watch', function() {
       return bundle;
     };
     item.bundler.transform( 'coffeeify' );
+    item.bundler.transform( 'brfs' );
     item.bundler.on( 'update', rebundle );
     rebundle();
   });
