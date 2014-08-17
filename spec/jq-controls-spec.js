@@ -280,15 +280,9 @@ describe("Control prototype methods", function() {
   describe("@uncheck", function() {
     return it("unchecks all checkable inputs", function() {
       cSel.check();
-      expect(every(cSel.filter(CHECKABLE), function(el) {
-        return el.checked === true;
-      })).to.equal(true);
       cSel.uncheck();
       return expect(every(cSel.filter(CHECKABLE), function(el) {
-        if (el.checked !== false) {
-          console.log(el);
-        }
-        return el.checked === false;
+        return $(el).prop("checked") === false;
       })).to.equal(true);
     });
   });
@@ -412,24 +406,16 @@ describe("jQuery traversal methods", function() {
       });
     });
   });
-  describe("each returns Controls", function() {
+  return describe("each returns Controls", function() {
     return it("returns Controls from @each()", function() {
       return expect(ctls.each(function() {})).to.be["instanceof"](Controls);
     });
   });
-  return describe("failure", function() {
-    return it("fails", function() {
-      return expect(true).to.equal(false);
-    });
-  });
 });
 
-if (window.mochaPhantomJS) {
-  console.log("here");
+if (typeof window !== "undefined" && window !== null ? window.mochaPhantomJS : void 0) {
   window.mochaPhantomJS.run();
-}
-
-if (mocha) {
+} else if (mocha) {
   mocha.run();
 } else {
   throw new Error("No Mocha!");

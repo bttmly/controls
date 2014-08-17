@@ -24,13 +24,13 @@ getFails = ->
 totalTests = ->
   page.evaluate ->
 
-    getTests = ( suite, tests ) ->
-      tests or= []
-      [].push.apply tests, suite.tests
-      if suite?.suites?.length
-        for suite in suite.suites
-          getTests( suite, tests )
-      tests
+      getTests = ( suite, tests ) ->
+        tests or= []
+        [].push.apply tests, suite.tests
+        if suite?.suites?.length
+          for suite in suite.suites
+            getTests( suite, tests )
+        tests
 
     getTests( mocha.suite ).length
 

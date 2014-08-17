@@ -114,12 +114,12 @@ class Controls extends jQuery
     @prevObject ? jQuery null
 
   # common attr convenience methods
-  check: -> @attr "checked", "checked"
-  uncheck: -> @removeAttr "checked"
-  require: -> @attr "required", "required"
-  unrequire: -> @removeAttr "required"
-  disable: -> @attr "disabled", "disabled"
-  enable: -> @removeAttr "disabled"
+  check: -> @prop "checked", true
+  uncheck: -> @prop "checked", false
+  require: -> @prop "required", true
+  unrequire: -> @prop "required", false
+  disable: -> @prop "disabled", true
+  enable: -> @prop "disabled", false
 
 
   # common filter convenience methods

@@ -253,18 +253,12 @@ describe "Control prototype methods", ->
 
   describe "@uncheck", ->
     it "unchecks all checkable inputs", ->
+
       cSel.check()
-
-      expect every cSel.filter( CHECKABLE ), ( el ) ->
-        el.checked is true
-      .to.equal true
-
       cSel.uncheck()
 
       expect every cSel.filter( CHECKABLE ), ( el ) ->
-        if el.checked isnt false
-          console.log el
-        el.checked is false
+        $( el ).prop( "checked" ) is false
       .to.equal true
 
   describe "@require", ->
@@ -409,16 +403,9 @@ describe "jQuery traversal methods", ->
     it "returns Controls from @each()", ->
       expect( ctls.each( -> ) ).to.be.instanceof Controls
 
-
-  describe "failure", ->
-    it "fails", ->
-      expect( true ).to.equal false
-
-
-if window.mochaPhantomJS
-  console.log "here"
+if window?.mochaPhantomJS
   window.mochaPhantomJS.run()
-if mocha
+else if mocha
   mocha.run()
 else
   throw new Error "No Mocha!"

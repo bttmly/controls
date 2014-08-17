@@ -177,27 +177,27 @@ Controls = (function(_super) {
   };
 
   Controls.prototype.check = function() {
-    return this.attr("checked", "checked");
+    return this.prop("checked", true);
   };
 
   Controls.prototype.uncheck = function() {
-    return this.removeAttr("checked");
+    return this.prop("checked", false);
   };
 
   Controls.prototype.require = function() {
-    return this.attr("required", "required");
+    return this.prop("required", true);
   };
 
   Controls.prototype.unrequire = function() {
-    return this.removeAttr("required");
+    return this.prop("required", false);
   };
 
   Controls.prototype.disable = function() {
-    return this.attr("disabled", "disabled");
+    return this.prop("disabled", true);
   };
 
   Controls.prototype.enable = function() {
-    return this.removeAttr("disabled");
+    return this.prop("disabled", false);
   };
 
   Controls.prototype.buttons = function() {
