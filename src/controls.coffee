@@ -114,13 +114,21 @@ class Controls extends jQuery
     @prevObject ? jQuery null
 
   # common attr convenience methods
-  check: -> @prop "checked", true
-  uncheck: -> @prop "checked", false
-  require: -> @prop "required", true
-  unrequire: -> @prop "required", false
-  disable: -> @prop "disabled", true
-  enable: -> @prop "disabled", false
 
+  # TODO: Check for preferred jQuery way to do this
+  #
+  # check: -> @prop "checked", true
+  # uncheck: -> @prop "checked", false
+  # require: -> @prop "required", true
+  # unrequire: -> @prop "required", false
+  # disable: -> @prop "disabled", true
+  # enable: -> @prop "disabled", false
+  check: -> @attr "checked", true
+  uncheck: -> @removeAttr "checked"
+  require: -> @attr "required", true
+  unrequire: -> @removeAttr "required"
+  disable: -> @attr "disabled", true
+  enable: -> @removeAttr "disabled"
 
   # common filter convenience methods
   buttons: -> @filter "button"
@@ -137,19 +145,11 @@ class Controls extends jQuery
       acc.add( el.labels )
     , do jQuery
 
-  asJQuery: ->
-    jQuery @get()
+  asJQuery: -> jQuery @get()
 
-  slice: ->
-    jQuery.fn.slice.apply( @, arguments ).controls()
-
-  first: ->
-    @eq 0
-
-  last: ->
-    @eq @length - 1
-
-  eq: ( i ) ->
-    @slice i, 1
+  slice: -> jQuery.fn.slice.apply( @, arguments ).controls()
+  eq: ( i ) ->  @slice i, 1
+  first: -> @eq 0
+  last: -> @eq @length - 1
 
 module.exports = Controls

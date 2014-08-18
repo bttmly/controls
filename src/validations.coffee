@@ -6,8 +6,8 @@ document = window.document
 
 html5Validation = do ->
   testEl = document.createElement "input"
-  ( inputType, value ) ->
-    testEl.type = inputType
+  ( type, value ) ->
+    testEl.type = type
     testEl.value = value
     testEl.required = true
     testEl.validity.valid
@@ -51,7 +51,7 @@ module.exports = v =
 
   checkbox: ( minChecked = 0, maxChecked = 50 ) ->
     if ( @name )
-      len = $( "#{ CHECK }[name='#{ @name }']" ).filter -> 
+      len = $( "#{ CHECK }[name='#{ @name }']" ).filter ->
         $( this ).prop "checked"
       .length
       minChecked <= len <= maxChecked

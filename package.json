@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "test": "mocha-phantomjs -R spec index.html"
+    "test": "mocha-phantomjs -R spec index.html",
+    "headless": "coffee spec/headless-spec-runner.coffee"
   },
   "dependencies": {},
   "devDependencies": {

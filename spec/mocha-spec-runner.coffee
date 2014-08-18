@@ -1,4 +1,4 @@
-page = require('webpage').create()
+page = require( "webpage" ).create()
 
 startTime = null
 
@@ -42,13 +42,13 @@ isDone = ->
 
 waitUntilDone = ->
   if isDone()
-    if isOk()
       console.log "#{ getPasses() } tests passing."
-      console.log "Specs passing."
+      console.log "#{ getFails() } tests failing."
+    if isOk()
+      console.log "Success!"
       phantom.exit()
     else
-      console.log "#{ getFails() } tests failing."
-      console.log "Specs failing."
+      console.log "Failed."
       phantom.exit 1
   else
     if Date.now() - startTime > minute

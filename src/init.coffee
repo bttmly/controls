@@ -1,9 +1,7 @@
 Controls = require "./controls.coffee"
-$ = window.jQuery
-
 CONTROL_TAGS = [ "input", "select", "textarea", "button" ].join ", "
 
-module.exports = do ->
+module.exports = do ( $ = window.jQuery ) ->
 
   prevControls = $.fn.controls
 

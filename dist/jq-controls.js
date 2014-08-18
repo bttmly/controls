@@ -177,27 +177,27 @@ Controls = (function(_super) {
   };
 
   Controls.prototype.check = function() {
-    return this.prop("checked", true);
+    return this.attr("checked", true);
   };
 
   Controls.prototype.uncheck = function() {
-    return this.prop("checked", false);
+    return this.removeAttr("checked");
   };
 
   Controls.prototype.require = function() {
-    return this.prop("required", true);
+    return this.attr("required", true);
   };
 
   Controls.prototype.unrequire = function() {
-    return this.prop("required", false);
+    return this.removeAttr("required");
   };
 
   Controls.prototype.disable = function() {
-    return this.prop("disabled", true);
+    return this.attr("disabled", true);
   };
 
   Controls.prototype.enable = function() {
-    return this.prop("disabled", false);
+    return this.removeAttr("disabled");
   };
 
   Controls.prototype.buttons = function() {
@@ -236,16 +236,16 @@ Controls = (function(_super) {
     return jQuery.fn.slice.apply(this, arguments).controls();
   };
 
+  Controls.prototype.eq = function(i) {
+    return this.slice(i, 1);
+  };
+
   Controls.prototype.first = function() {
     return this.eq(0);
   };
 
   Controls.prototype.last = function() {
     return this.eq(this.length - 1);
-  };
-
-  Controls.prototype.eq = function(i) {
-    return this.slice(i, 1);
   };
 
   return Controls;
@@ -288,15 +288,13 @@ module.exports = getValue;
 
 
 },{"./selectors.coffee":"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/src/selectors.coffee"}],"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/src/init.coffee":[function(require,module,exports){
-var $, CONTROL_TAGS, Controls;
+var CONTROL_TAGS, Controls;
 
 Controls = require("./controls.coffee");
 
-$ = window.jQuery;
-
 CONTROL_TAGS = ["input", "select", "textarea", "button"].join(", ");
 
-module.exports = (function() {
+module.exports = (function($) {
   var prevControls;
   prevControls = $.fn.controls;
   $.fn.controls = function(opt) {
@@ -312,7 +310,7 @@ module.exports = (function() {
     return this;
   };
   return void 0;
-})();
+})(window.jQuery);
 
 
 
