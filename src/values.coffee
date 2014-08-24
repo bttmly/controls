@@ -1,47 +1,45 @@
-class Values extends Array
+module.exports = class Values
   constructor: ( items ) ->
     throw new TypeError() unless Array.isArray items
     @push.apply @, items
 
   normal: ->
-    [].concat @
+    @map ( obj ) ->
+      id: obj.id
+      value: obj.value
 
   valueArray: ->
-    @map ( pair ) -> pair.value
+    @map ( obj ) -> obj.value
 
   idArray: ->
-    @map ( pair ) -> pair.id
+    @map ( obj ) -> obj.id
 
-  idValuePair: ->
-    @reduce ( obj, pair ) ->
-      obj[ pair.id ] = pair.value
-      obj
+  idValueMap: ->
+    @reduce ( acc, obj ) ->
+      acc[ obj.id ] = obj.value
+      acc
     , {}
 
   valueString: ( delimiter = ", " ) ->
-    @valueArray().join( delimiter )
+    @valueArray().join delimiter
 
   valueArrayOne: ->
-    values = @valueArray()
-    if values.length > 1 then values else values[0]
+    result = @valueArray()
+    if result.length > 1 then result else result[0]
 
   idArrayOne: ->
-    values = @idArray()
-    if values.length > 1 then values else values[0]
+    result = @idArray()
+    if result.length > 1 then result else result[0]
 
   at: ( i ) ->
     if isNaN Number i
-      @idValuePair()[i]
+      for obj in @
+        return obj if obj.id is i
     else
-      @[i].value
+      return @[i].value
 
-  first: ->
-    @at 0
+  first: -> @at 0
 
-  last: ->
-    @at @length - 1
+  last: -> @at @length - 1
 
   serialize: -> JSON.stringify @normal()
-
-
-module.exports = Values
