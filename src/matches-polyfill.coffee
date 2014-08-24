@@ -1,7 +1,6 @@
 do ( Element = window.Element ) ->
-  if Element
+  if Element and not Element::matches
     Element::matches =
-      Element::matches or
       Element::matchesSelector or
       Element::oMatchesSelector or
       Element::msMatchesSelector or

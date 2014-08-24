@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "test": "mocha-phantomjs -R spec index.html",
-    "headless": "coffee spec/headless-spec-runner.coffee"
+    "headless": "coffee spec/headless-spec-runner.coffee",
+    "build": "browserify -t coffeeify ./src/jquery-controls.coffee > ./jq-controls.js"
   },
   "dependencies": {},
   "devDependencies": {

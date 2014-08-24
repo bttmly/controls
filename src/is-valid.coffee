@@ -44,5 +44,5 @@ isValid = ( el, customFn, args... ) ->
 
   else
     return el.validity.valid
-      
+
 module.exports = isValid

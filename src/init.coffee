@@ -13,4 +13,9 @@ module.exports = do ( $ = window.jQuery ) ->
     $.fn.controls = prevControls
     @
 
+  $.fn.mixinControls = ->
+    Object.getOwnPropertyNames( Controls:: ).forEach ( method ) ->
+      @[method] = Controls::[method]
+    @
+
   undefined

@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var BUTTON, CHECKABLE, Controls, TAGS, Values, each, every, getControlNodes, getValue, isValid, jQuery, map, propMap, reduce, slice, _ref, _ref1,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -167,7 +167,7 @@ Controls = (function(_super) {
   };
 
   Controls.prototype.check = function() {
-    return this.attr("checked", "checked");
+    return this.attr("checked", true);
   };
 
   Controls.prototype.uncheck = function() {
@@ -175,7 +175,7 @@ Controls = (function(_super) {
   };
 
   Controls.prototype.require = function() {
-    return this.attr("required", "required");
+    return this.attr("required", true);
   };
 
   Controls.prototype.unrequire = function() {
@@ -183,7 +183,7 @@ Controls = (function(_super) {
   };
 
   Controls.prototype.disable = function() {
-    return this.attr("disabled", "disabled");
+    return this.attr("disabled", true);
   };
 
   Controls.prototype.enable = function() {
@@ -226,6 +226,10 @@ Controls = (function(_super) {
     return jQuery.fn.slice.apply(this, arguments).controls();
   };
 
+  Controls.prototype.eq = function(i) {
+    return this.slice(i, 1);
+  };
+
   Controls.prototype.first = function() {
     return this.eq(0);
   };
@@ -234,15 +238,12 @@ Controls = (function(_super) {
     return this.eq(this.length - 1);
   };
 
-  Controls.prototype.eq = function(i) {
-    return this.slice(i, 1);
-  };
-
   return Controls;
 
 })(jQuery);
 
 module.exports = Controls;
+
 
 
 },{"./get-value.coffee":2,"./is-valid.coffee":4,"./matches-polyfill.coffee":6,"./selectors.coffee":7,"./utils.coffee":8,"./values.coffee":10}],2:[function(require,module,exports){
@@ -275,16 +276,15 @@ getValue = function(el) {
 module.exports = getValue;
 
 
+
 },{"./selectors.coffee":7}],3:[function(require,module,exports){
-var $, CONTROL_TAGS, Controls;
+var CONTROL_TAGS, Controls;
 
 Controls = require("./controls.coffee");
 
-$ = window.jQuery;
-
 CONTROL_TAGS = ["input", "select", "textarea", "button"].join(", ");
 
-module.exports = (function() {
+module.exports = (function($) {
   var prevControls;
   prevControls = $.fn.controls;
   $.fn.controls = function(opt) {
@@ -300,7 +300,8 @@ module.exports = (function() {
     return this;
   };
   return void 0;
-})();
+})(window.jQuery);
+
 
 
 },{"./controls.coffee":1}],4:[function(require,module,exports){
@@ -363,32 +364,42 @@ isValid = function() {
 module.exports = isValid;
 
 
+
 },{"./validations.coffee":9}],5:[function(require,module,exports){
-module.exports = (function() {
+module.exports = (function($) {
   require("./init.coffee");
   $.Controls = require("./controls.coffee");
   $.Values = require("./values.coffee");
+  $.fn.mixinControls = function() {
+    var controls;
+    controls = this.slice();
+    Object.getOwnPropertyNames($.Controls.prototype).forEach(function(method) {
+      return controls[method] = $.Controls.prototype[method];
+    });
+    return controls;
+  };
   return void 0;
-})();
+})(window.jQuery);
+
 
 
 },{"./controls.coffee":1,"./init.coffee":3,"./values.coffee":10}],6:[function(require,module,exports){
 (function(Element) {
   if (Element) {
-    return Element.prototype.matches = Element.prototype.matches || Element.prototype.matchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector || Element.prototype.webkitMatchesSelector || function(selector) {
-      var i, nodes;
+    return Element.prototype.matches = Element.prototype.matches || Element.prototype.matchesSelector || Element.prototype.oMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.webkitMatchesSelector || function(selector) {
+      var node, nodes, _i, _len;
       nodes = (this.parentNode || this.document).querySelectorAll(selector);
-      i = 0;
-      while (i < nodes.length) {
-        if (nodes[i] === this) {
+      for (_i = 0, _len = nodes.length; _i < _len; _i++) {
+        node = nodes[_i];
+        if (node === this) {
           return true;
         }
-        i += 1;
       }
       return false;
     };
   }
 })(window.Element);
+
 
 
 },{}],7:[function(require,module,exports){
@@ -401,11 +412,12 @@ module.exports = {
 };
 
 
-},{}],8:[function(require,module,exports){
-var arrayMethods, demethodize, method, utils, _fn, _i, _len;
 
-demethodize = function(fn) {
-  return Function.prototype.call.bind(fn);
+},{}],8:[function(require,module,exports){
+var arrayMethods, demethodize, utils;
+
+demethodize = function(method) {
+  return Function.prototype.call.bind(method);
 };
 
 arrayMethods = ["map", "some", "every", "slice", "filter", "reduce", "forEach"];
@@ -422,17 +434,14 @@ utils = {
   }
 };
 
-_fn = function(method) {
+arrayMethods.forEach(function(method) {
   return utils[method] = demethodize(Array.prototype[method]);
-};
-for (_i = 0, _len = arrayMethods.length; _i < _len; _i++) {
-  method = arrayMethods[_i];
-  _fn(method);
-}
+});
 
 utils.each = utils.forEach;
 
 module.exports = utils;
+
 
 
 },{}],9:[function(require,module,exports){
@@ -450,8 +459,8 @@ document = window.document;
 html5Validation = (function() {
   var testEl;
   testEl = document.createElement("input");
-  return function(inputType, value) {
-    testEl.type = inputType;
+  return function(type, value) {
+    testEl.type = type;
     testEl.value = value;
     testEl.required = true;
     return testEl.validity.valid;
@@ -591,14 +600,11 @@ module.exports = v = {
 };
 
 
+
 },{"./selectors.coffee":7,"./utils.coffee":8}],10:[function(require,module,exports){
-var Values,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var Values;
 
-Values = (function(_super) {
-  __extends(Values, _super);
-
+module.exports = Values = (function() {
   function Values(items) {
     if (!Array.isArray(items)) {
       throw new TypeError();
@@ -607,29 +613,31 @@ Values = (function(_super) {
   }
 
   Values.prototype.normal = function() {
-    return [].concat(this);
+    return this.map(function(obj) {
+      return {
+        id: obj.id,
+        value: obj.value
+      };
+    });
   };
 
   Values.prototype.valueArray = function() {
-    return this.map(function(pair) {
-      return pair.value;
+    return this.map(function(obj) {
+      return obj.value;
     });
   };
 
   Values.prototype.idArray = function() {
-    return this.map(function(pair) {
-      return pair.id;
+    return this.map(function(obj) {
+      return obj.id;
     });
   };
 
-  Values.prototype.idValuePair = function() {
-    var pair, pairs, _i, _len;
-    pairs = {};
-    for (_i = 0, _len = this.length; _i < _len; _i++) {
-      pair = this[_i];
-      pairs[pair.id] = pair.value;
-    }
-    return pairs;
+  Values.prototype.idValueMap = function() {
+    return this.reduce(function(acc, obj) {
+      acc[obj.id] = obj.value;
+      return acc;
+    }, {});
   };
 
   Values.prototype.valueString = function(delimiter) {
@@ -640,28 +648,34 @@ Values = (function(_super) {
   };
 
   Values.prototype.valueArrayOne = function() {
-    var values;
-    values = this.valueArray();
-    if (values.length > 1) {
-      return values;
+    var result;
+    result = this.valueArray();
+    if (result.length > 1) {
+      return result;
     } else {
-      return values[0];
+      return result[0];
     }
   };
 
   Values.prototype.idArrayOne = function() {
-    var values;
-    values = this.idArray();
-    if (values.length > 1) {
-      return values;
+    var result;
+    result = this.idArray();
+    if (result.length > 1) {
+      return result;
     } else {
-      return values[0];
+      return result[0];
     }
   };
 
   Values.prototype.at = function(i) {
+    var obj, _i, _len;
     if (isNaN(Number(i))) {
-      return this.idValuePair()[i];
+      for (_i = 0, _len = this.length; _i < _len; _i++) {
+        obj = this[_i];
+        if (obj.id === i) {
+          return obj;
+        }
+      }
     } else {
       return this[i].value;
     }
@@ -681,9 +695,8 @@ Values = (function(_super) {
 
   return Values;
 
-})(Array);
-
-module.exports = Values;
+})();
 
 
-},{}]},{},[5])
+
+},{}]},{},[5]);

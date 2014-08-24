@@ -1,10 +1,18 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./src/jquery-controls.coffee":[function(require,module,exports){
-module.exports = (function() {
+module.exports = (function($) {
   require("./init.coffee");
   $.Controls = require("./controls.coffee");
   $.Values = require("./values.coffee");
+  $.fn.mixinControls = function() {
+    var controls;
+    controls = this.slice();
+    Object.getOwnPropertyNames(Controls.prototype).forEach(function(method) {
+      return controls[method] = method;
+    });
+    return controls;
+  };
   return void 0;
-})();
+})(window.jQuery);
 
 
 
@@ -378,15 +386,14 @@ module.exports = isValid;
 },{"./validations.coffee":"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/src/validations.coffee"}],"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/src/matches-polyfill.coffee":[function(require,module,exports){
 (function(Element) {
   if (Element) {
-    return Element.prototype.matches = Element.prototype.matches || Element.prototype.matchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector || Element.prototype.webkitMatchesSelector || function(selector) {
-      var i, nodes;
+    return Element.prototype.matches = Element.prototype.matches || Element.prototype.matchesSelector || Element.prototype.oMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.webkitMatchesSelector || function(selector) {
+      var node, nodes, _i, _len;
       nodes = (this.parentNode || this.document).querySelectorAll(selector);
-      i = 0;
-      while (i < nodes.length) {
-        if (nodes[i] === this) {
+      for (_i = 0, _len = nodes.length; _i < _len; _i++) {
+        node = nodes[_i];
+        if (node === this) {
           return true;
         }
-        i += 1;
       }
       return false;
     };
@@ -452,8 +459,8 @@ document = window.document;
 html5Validation = (function() {
   var testEl;
   testEl = document.createElement("input");
-  return function(inputType, value) {
-    testEl.type = inputType;
+  return function(type, value) {
+    testEl.type = type;
     testEl.value = value;
     testEl.required = true;
     return testEl.validity.valid;
@@ -595,13 +602,9 @@ module.exports = v = {
 
 
 },{"./selectors.coffee":"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/src/selectors.coffee","./utils.coffee":"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/src/utils.coffee"}],"/Users/nickbottomley/Documents/dev/experiments/jquery-controls/src/values.coffee":[function(require,module,exports){
-var Values,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var Values;
 
-Values = (function(_super) {
-  __extends(Values, _super);
-
+module.exports = Values = (function() {
   function Values(items) {
     if (!Array.isArray(items)) {
       throw new TypeError();
@@ -610,25 +613,30 @@ Values = (function(_super) {
   }
 
   Values.prototype.normal = function() {
-    return [].concat(this);
+    return this.map(function(obj) {
+      return {
+        id: obj.id,
+        value: obj.value
+      };
+    });
   };
 
   Values.prototype.valueArray = function() {
-    return this.map(function(pair) {
-      return pair.value;
+    return this.map(function(obj) {
+      return obj.value;
     });
   };
 
   Values.prototype.idArray = function() {
-    return this.map(function(pair) {
-      return pair.id;
+    return this.map(function(obj) {
+      return obj.id;
     });
   };
 
-  Values.prototype.idValuePair = function() {
-    return this.reduce(function(obj, pair) {
-      obj[pair.id] = pair.value;
-      return obj;
+  Values.prototype.idValueMap = function() {
+    return this.reduce(function(acc, obj) {
+      acc[obj.id] = obj.value;
+      return acc;
     }, {});
   };
 
@@ -640,28 +648,34 @@ Values = (function(_super) {
   };
 
   Values.prototype.valueArrayOne = function() {
-    var values;
-    values = this.valueArray();
-    if (values.length > 1) {
-      return values;
+    var result;
+    result = this.valueArray();
+    if (result.length > 1) {
+      return result;
     } else {
-      return values[0];
+      return result[0];
     }
   };
 
   Values.prototype.idArrayOne = function() {
-    var values;
-    values = this.idArray();
-    if (values.length > 1) {
-      return values;
+    var result;
+    result = this.idArray();
+    if (result.length > 1) {
+      return result;
     } else {
-      return values[0];
+      return result[0];
     }
   };
 
   Values.prototype.at = function(i) {
+    var obj, _i, _len;
     if (isNaN(Number(i))) {
-      return this.idValuePair()[i];
+      for (_i = 0, _len = this.length; _i < _len; _i++) {
+        obj = this[_i];
+        if (obj.id === i) {
+          return obj;
+        }
+      }
     } else {
       return this[i].value;
     }
@@ -681,9 +695,7 @@ Values = (function(_super) {
 
   return Values;
 
-})(Array);
-
-module.exports = Values;
+})();
 
 
 

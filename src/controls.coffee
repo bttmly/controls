@@ -27,6 +27,13 @@ getControlNodes = ( nodes ) ->
     acc
   , []
 
+validityListener = ( evt ) ->
+  isValid = @valid()
+  if isValid isnt @isValid()
+    if isValid then @trigger "valid" else @trigger "invalid"
+    @isValid = isValid
+
+
 class Controls extends jQuery
 
   @validateElement = isValid
@@ -39,6 +46,7 @@ class Controls extends jQuery
     @identifyingProp = opt.idProp or "id"
     @isValid = @valid()
 
+    @_validityListener = validityListener.bind @
     # set validity listener
     unless opt.noAutoValidate
       @on "change, input", =>
@@ -49,6 +57,13 @@ class Controls extends jQuery
 
     unless opt.noResetState
       @setResetState()
+
+  startValidListening: ->
+    @on "change, input", @_validityListener
+
+  stopValidListening: ->
+    @off "change, input", @_validityListener
+
 
   setResetState: ->
     @each ( i, el ) ->

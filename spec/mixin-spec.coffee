@@ -46,79 +46,7 @@ trees = window.trees = do ->
   fs.readFileSync "#{ __dirname }/html/validation.html", "utf8"
   fs.readFileSync "#{ __dirname }/html/with-initial-state.html", "utf8"
   fs.readFileSync "#{ __dirname }/html/with-labels.html", "utf8"
-].map trees.addTree.bind trees
-
-# $.when.apply $, htmlFiles.map $.get
-#   .then ->
-#     slice( arguments ).map( first ).map( trees.addTree )
-
-
-describe "jQuery.fn.controls()", ->
-
-  describe "basics", ->
-    it "exists", ->
-      expect( jQuery.fn.controls ).to.be.a "function"
-
-    it "works", ->
-      root = trees.byId( "values" )
-      cSel = $( root ).controls()
-      jSel = $( root ).find "input, button, select"
-      expect( sameSelection cSel, jSel ).to.equal true
-
-describe "Controls.validateElement()", ->
-
-  valid = Controls.validateElement
-
-  root = null
-
-  beforeEach ->
-    root = trees.byId "validation"
-
-  describe "validation against a passed in function", ->
-    validatorA = ->
-      "1" in @value
-    validatorB = ( str ) ->
-      str + @value is "abc123"
-    thisIs = ( obj ) ->
-      obj is @
-
-    it "accepts a function", ->
-      els = $( root ).find( ".custom-validation" )
-      expect( valid( els[0], validatorA ) ).to.equal true
-      expect( valid( els[1], validatorA ) ).to.equal false
-
-    it "accepts additional arguments", ->
-      els = $( root ).find( ".custom-validation" )
-      expect( valid( els[0], validatorB, "abc" ) ).to.equal true
-      expect( valid( els[1], validatorB, "abc" ) ).to.equal false
-
-    it "calls the function with the element as 'this'", ->
-      els = $( root ).find( ".custom-validation" )
-      expect( valid( els[0], thisIs, els[0] ) ).to.equal true
-
-  describe "validation against a data-control-validation attribute", ->
-    it "validates an input against preset attribute validators", ->
-      els = $( root ).find( ".attr-validation" )
-      expect( valid( els[0] ) ).to.equal true
-      expect( valid( els[1] ) ).to.equal false
-
-  describe "validation against bound validators", ->
-    it "validates against all present attached validators", ->
-      els = $( root ).find( ".data-validation" )
-      $.data els[0], "controlValidators", [
-        ( -> @value == "123" )
-        ( -> @value != "abc" )
-      ]
-      $.data els[1], "controlValidators", [
-        ( -> @value != "abc" )
-        ( -> @value == "abc" )
-      ]
-      expect( valid( els[0] ) ).to.equal true
-      expect( valid( els[1] ) ).to.equal false
-      $.data els[0], "controlValidators", ""
-      $.data els[1], "controlValidators", ""
-
-  # describe "validation with HTML5"
+].map trees.addTree
 
 describe "Control prototype methods", ->
 
@@ -130,7 +58,7 @@ describe "Control prototype methods", ->
   beforeEach ->
     root = trees.byId( "values" )
     jSel = $( root )
-    cSel = $( root ).controls()
+    cSel = $( root ).mixinControls()
     qsa = Element::querySelectorAll.bind( root )
 
   describe "@filter()", ->
@@ -198,7 +126,7 @@ describe "Control prototype methods", ->
     it "resets disabled, required, and value to their resetState", ->
       root = trees.byId "initialState"
       els = $( root )
-      ctls = $( root ).controls()
+      ctls = $( root ).mixinControls()
       t1 = els.find( "#text1" )[0]
       t2 = els.find( "#text2" )[0]
       t3 = els.find( "#text3" )[0]
@@ -225,7 +153,7 @@ describe "Control prototype methods", ->
     it "clears values, checked, and selected", ->
       root = trees.byId "initialState"
       els = $( root )
-      ctls = $( root ).controls()
+      ctls = $( root ).mixinControls()
       ctls.clear()
       expect every ctls.filter( "[type='text']" ), ( el ) ->
         el.value is ""
@@ -313,7 +241,7 @@ describe "Control prototype methods", ->
           [].push.apply acc, slice el.labels
         acc
       , []
-      expect( sameSelection $( root ).controls().labels(), lbls ).to.be.true
+      expect( sameSelection $.mixinControls( $( root ) ).labels(), lbls ).to.be.true
 
 
   describe "@valid", ->
@@ -338,17 +266,13 @@ describe "Control prototype methods", ->
 
   describe "@bindValidator", ->
 
-    it ""
-
-  return
-
 describe "jQuery traversal methods", ->
 
   root = undefined
   ctls = undefined
   beforeEach ->
     root = trees.byId "values"
-    ctls = $( root ).controls()
+    ctls = $( root ).mixinControls()
 
   describe "mutating methods return jQuery", ->
     methods = [
@@ -403,7 +327,7 @@ describe "jQuery traversal methods", ->
     it "returns Controls from @each()", ->
       expect( ctls.each( -> ) ).to.be.instanceof Controls
 
-require "./mixin-spec.coffee"
+
 
 if window?.mochaPhantomJS
   window.mochaPhantomJS.run()
