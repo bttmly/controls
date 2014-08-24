@@ -47,14 +47,12 @@ class Controls extends jQuery
     @isValid = @valid()
 
     @_validityListener = validityListener.bind @
+
     # set validity listener
     unless opt.noAutoValidate
-      @on "change, input", =>
-        isValid = @valid()
-        if isValid isnt @isValid()
-          if isValid then @trigger "valid" else @trigger "invalid"
-          @isValid = isValid
+      @startValidListening()
 
+    # set base state for .reset()
     unless opt.noResetState
       @setResetState()
 
@@ -63,7 +61,6 @@ class Controls extends jQuery
 
   stopValidListening: ->
     @off "change, input", @_validityListener
-
 
   setResetState: ->
     @each ( i, el ) ->
@@ -118,8 +115,8 @@ class Controls extends jQuery
     @
 
   # adapted from space-pen
-  pushStack: (elems) ->
-    ret = jQuery.merge do jQuery, elems
+  pushStack: ( elems ) ->
+    ret = jQuery.merge jQuery(), elems
     ret.prevObject = @
     ret.context = @context
     ret
