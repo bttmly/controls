@@ -3,9 +3,12 @@
   "private": false,
   "version": "0.0.1",
   "scripts": {
-    "test": "mocha-phantomjs -R spec index.html",
-    "build": "browserify -t coffeeify ./src/jquery-controls.coffee > ./jq-controls.js",
-    "built-test": "browserify -t coffeeify ./spec/controls-spec.coffee > ./spec/jq-controls-spec.js"
+    "test": "browserify ./spec/controls-spec.coffee > ./spec/jq-controls-spec.js && mocha-phantomjs -R spec ./spec/spec-runner.html && rm ./spec/jq-controls-spec.js",
+    "build": "browserify ./src/jquery-controls.coffee > ./dist/jq-controls.js",
+    "built-test": "browserify ./spec/controls-spec.coffee > ./spec/jq-controls-spec.js"
+  },
+  "browserify": {
+    "transform": [ "coffeeify", "brfs" ]
   },
   "dependencies": {},
   "devDependencies": {
