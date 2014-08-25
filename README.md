@@ -3,14 +3,18 @@ Controls is a library built on top of jQuery that makes dealing with control ele
 
 I've borrowed design patterns for both the library and the test suite from GitHub's very cool [space-pen](https://github.com/atom/space-pen) project.
 
+# Usage
+Any way you please.
+
+```js
+$( 'input' ).controls();
+$( 'input' ).mixinControls();
+new $.Controls( 'input' );
+new $.Controls( document.querySelectorAll( 'input' ) );
+```
+
 # API
-##`$.fn.controls()`
+**Comprehensive docs coming soon**
+In the mean time, take a spin through [src/controls.coffee](https://github.com/nickb1080/controls/blob/master/src%2Fcontrols.coffee), it's pretty straightforward.
 
 
-
-## `Controls`
-This is the "class" returned by `$.fn.controls`, which extends jQuery. Thus, all `Controls` instances have all the jQuery methods, plus a few goodies described here.
-
-## `Values`
-
-## `data-control-validation`
