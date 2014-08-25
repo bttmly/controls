@@ -1,4 +1,5 @@
 Controls = require "./controls.coffee"
+mixinControls = require "./mixin.coffee"
 CONTROL_TAGS = [ "input", "select", "textarea", "button" ].join ", "
 
 module.exports = do ( $ = window.jQuery ) ->
@@ -13,9 +14,7 @@ module.exports = do ( $ = window.jQuery ) ->
     $.fn.controls = prevControls
     @
 
-  $.fn.mixinControls = ->
-    Object.getOwnPropertyNames( Controls:: ).forEach ( method ) ->
-      @[method] = Controls::[method]
-    @
+  $.fn.mixinControls = ( opt = {} )->
+    mixinControls( @, opt )
 
   undefined

@@ -43,6 +43,9 @@ class Controls extends jQuery
     unless @ instanceof Controls
       return new Controls jQuery nodes
     jQuery.fn.init.call @, getControlNodes nodes
+    @_controlsInit opt
+
+  _controlsInit: ( opt ) ->
     @identifyingProp = opt.idProp or "id"
     @isValid = @valid()
 
