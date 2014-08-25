@@ -2,6 +2,7 @@ $ = window.jQuery
 Controls = require "./controls.coffee"
 
 BLACKLIST = [
+  "constructor",
   "filter",
   "not",
   "slice",

@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var BUTTON, CHECKABLE, Controls, TAGS, Values, each, every, getControlNodes, getValue, isValid, jQuery, map, propMap, reduce, slice, _ref, _ref1,
+var BUTTON, CHECKABLE, Controls, TAGS, Values, each, every, getControlNodes, getValue, isValid, jQuery, map, propMap, reduce, slice, validityListener, _ref, _ref1,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -41,6 +41,18 @@ getControlNodes = function(nodes) {
   }, []);
 };
 
+validityListener = function(evt) {
+  isValid = this.valid();
+  if (isValid !== this.isValid()) {
+    if (isValid) {
+      this.trigger("valid");
+    } else {
+      this.trigger("invalid");
+    }
+    return this.isValid = isValid;
+  }
+};
+
 Controls = (function(_super) {
   __extends(Controls, _super);
 
@@ -57,27 +69,28 @@ Controls = (function(_super) {
       return new Controls(jQuery(nodes));
     }
     jQuery.fn.init.call(this, getControlNodes(nodes));
+    this._controlsInit(opt);
+  }
+
+  Controls.prototype._controlsInit = function(opt) {
     this.identifyingProp = opt.idProp || "id";
     this.isValid = this.valid();
+    this._validityListener = validityListener.bind(this);
     if (!opt.noAutoValidate) {
-      this.on("change, input", (function(_this) {
-        return function() {
-          isValid = _this.valid();
-          if (isValid !== _this.isValid()) {
-            if (isValid) {
-              _this.trigger("valid");
-            } else {
-              _this.trigger("invalid");
-            }
-            return _this.isValid = isValid;
-          }
-        };
-      })(this));
+      this.startValidListening();
     }
     if (!opt.noResetState) {
-      this.setResetState();
+      return this.setResetState();
     }
-  }
+  };
+
+  Controls.prototype.startValidListening = function() {
+    return this.on("change, input", this._validityListener);
+  };
+
+  Controls.prototype.stopValidListening = function() {
+    return this.off("change, input", this._validityListener);
+  };
 
   Controls.prototype.setResetState = function() {
     return this.each(function(i, el) {
@@ -246,7 +259,7 @@ module.exports = Controls;
 
 
 
-},{"./get-value.coffee":2,"./is-valid.coffee":4,"./matches-polyfill.coffee":6,"./selectors.coffee":7,"./utils.coffee":8,"./values.coffee":10}],2:[function(require,module,exports){
+},{"./get-value.coffee":2,"./is-valid.coffee":4,"./matches-polyfill.coffee":6,"./selectors.coffee":8,"./utils.coffee":9,"./values.coffee":11}],2:[function(require,module,exports){
 var $, BUTTON, CHECKABLE, SELECTED, getValue, _ref;
 
 $ = window.jQuery;
@@ -277,10 +290,12 @@ module.exports = getValue;
 
 
 
-},{"./selectors.coffee":7}],3:[function(require,module,exports){
-var CONTROL_TAGS, Controls;
+},{"./selectors.coffee":8}],3:[function(require,module,exports){
+var CONTROL_TAGS, Controls, mixinControls;
 
 Controls = require("./controls.coffee");
+
+mixinControls = require("./mixin.coffee");
 
 CONTROL_TAGS = ["input", "select", "textarea", "button"].join(", ");
 
@@ -299,12 +314,18 @@ module.exports = (function($) {
     $.fn.controls = prevControls;
     return this;
   };
+  $.fn.mixinControls = function(opt) {
+    if (opt == null) {
+      opt = {};
+    }
+    return mixinControls(this, opt);
+  };
   return void 0;
 })(window.jQuery);
 
 
 
-},{"./controls.coffee":1}],4:[function(require,module,exports){
+},{"./controls.coffee":1,"./mixin.coffee":7}],4:[function(require,module,exports){
 var $, callOn, getArgs, getMethod, isValid, jQuery, splitMethods, validations,
   __slice = [].slice;
 
@@ -365,28 +386,20 @@ module.exports = isValid;
 
 
 
-},{"./validations.coffee":9}],5:[function(require,module,exports){
+},{"./validations.coffee":10}],5:[function(require,module,exports){
 module.exports = (function($) {
   require("./init.coffee");
   $.Controls = require("./controls.coffee");
   $.Values = require("./values.coffee");
-  $.fn.mixinControls = function() {
-    var controls;
-    controls = this.slice();
-    Object.getOwnPropertyNames($.Controls.prototype).forEach(function(method) {
-      return controls[method] = $.Controls.prototype[method];
-    });
-    return controls;
-  };
   return void 0;
 })(window.jQuery);
 
 
 
-},{"./controls.coffee":1,"./init.coffee":3,"./values.coffee":10}],6:[function(require,module,exports){
+},{"./controls.coffee":1,"./init.coffee":3,"./values.coffee":11}],6:[function(require,module,exports){
 (function(Element) {
-  if (Element) {
-    return Element.prototype.matches = Element.prototype.matches || Element.prototype.matchesSelector || Element.prototype.oMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.webkitMatchesSelector || function(selector) {
+  if (Element && !Element.prototype.matches) {
+    return Element.prototype.matches = Element.prototype.matchesSelector || Element.prototype.oMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.webkitMatchesSelector || function(selector) {
       var node, nodes, _i, _len;
       nodes = (this.parentNode || this.document).querySelectorAll(selector);
       for (_i = 0, _len = nodes.length; _i < _len; _i++) {
@@ -403,6 +416,30 @@ module.exports = (function($) {
 
 
 },{}],7:[function(require,module,exports){
+var $, BLACKLIST, Controls, mixin,
+  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+$ = window.jQuery;
+
+Controls = require("./controls.coffee");
+
+BLACKLIST = ["constructor", "filter", "not", "slice", "pushStack", "end"];
+
+module.exports = mixin = function(obj, opt) {
+  if (!(obj instanceof $)) {
+    throw new TypeError("Controls mixin expects a jQuery selection");
+  }
+  Object.getOwnPropertyNames(Controls.prototype).forEach(function(method) {
+    if (__indexOf.call(BLACKLIST, method) < 0) {
+      return obj[method] = Controls.prototype[method];
+    }
+  });
+  return obj;
+};
+
+
+
+},{"./controls.coffee":1}],8:[function(require,module,exports){
 module.exports = {
   CHECKABLE: "input[type='radio'], input[type='checkbox']",
   BUTTON: "input[type='button'], button",
@@ -413,7 +450,7 @@ module.exports = {
 
 
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var arrayMethods, demethodize, utils;
 
 demethodize = function(method) {
@@ -444,7 +481,7 @@ module.exports = utils;
 
 
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var $, CHECK, RADIO, document, html5Validation, jQuery, slice, v, _ref,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -601,7 +638,7 @@ module.exports = v = {
 
 
 
-},{"./selectors.coffee":7,"./utils.coffee":8}],10:[function(require,module,exports){
+},{"./selectors.coffee":8,"./utils.coffee":9}],11:[function(require,module,exports){
 var Values;
 
 module.exports = Values = (function() {

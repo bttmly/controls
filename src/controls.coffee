@@ -19,10 +19,8 @@ propMap = ( jqCollection, keyProp, valProp ) ->
 getControlNodes = ( nodes ) ->
   reduce nodes, ( acc, node ) ->
     if node.matches TAGS
-      # acc.concat node
       acc.push node
     else
-      # acc.concat slice node.querySelectorAll TAGS
       [].push.apply slice node.querySelectorAll TAGS
     acc
   , []

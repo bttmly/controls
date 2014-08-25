@@ -20,6 +20,12 @@ sinon = window.sinon
   RADIO
   CHECK } = require "./selectors.coffee"
 
+type = ->
+  str = []
+  for arg in arguments
+    str.push "[type=#{ arg }]"
+  str.join ", "
+
 first = ( arr ) -> arr[ 0 ]
 last = ( arr ) -> arr[ arr.length - 1 ]
 
@@ -403,7 +409,30 @@ describe "jQuery traversal methods", ->
     it "returns Controls from @each()", ->
       expect( ctls.each( -> ) ).to.be.instanceof Controls
 
-require "./mixin-spec.coffee"
+describe "$.fn.mixinControls", ->
+
+  BLACKLIST = [
+    "constructor",
+    "filter",
+    "not",
+    "slice",
+    "pushStack",
+    "end"
+  ]
+
+  root = undefined
+  ctls = undefined
+  beforeEach ->
+    root = trees.byId "values"
+    ctls = $( root ).mixinControls()
+
+  it "Should have all methods from Control.prototype except the blacklisted ones", ->
+
+    Object.getOwnPropertyNames( Controls:: ).every ( method ) ->
+      if method in BLACKLIST
+        ctls[method] isnt Controls::[method]
+      else
+        ctls[method] is Controls::[method]
 
 if window?.mochaPhantomJS
   window.mochaPhantomJS.run()
