@@ -5,12 +5,13 @@
   "scripts": {
     "build": "browserify ./src/jquery-controls.coffee > ./dist/jq-controls.js",
     "watch": "watchify ./src/jquery-controls.coffee > ./dist/jq-controls.js",
-    "test": "npm run instr && npm run lint && mocha-phantomjs ./spec/spec-runner.html && rm ./spec/jq-controls-spec.js && rm ./spec/jq-controls-spec-instr.js",
+    "test": "npm run instr && npm run lint && mocha-phantomjs ./spec/spec-runner.html && npm run cleanup",
     "build-test": "browserify ./spec/controls-spec.coffee -o ./spec/jq-controls-spec.js",
     "instr": "npm run build-test && istanbul instrument ./spec/jq-controls-spec.js > ./spec/jq-controls-spec-instr.js",
     "cover": "npm run instr && istanbul mocha-phantomjs ./spec/spec-runner.html report",
     "coveralls": "npm run cover && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
-    "lint": "coffeelint src/*.coffee"
+    "lint": "coffeelint src/*.coffee",
+    "cleanup": "rm ./spec/jq-controls-spec.js && rm ./spec/jq-controls-spec-instr.js"
   },
   "browserify": {
     "transform": [
