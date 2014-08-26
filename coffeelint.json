@@ -9,21 +9,21 @@
         "level": "error"
     },
     "colon_assignment_spacing": {
-        "level": "ignore",
+        "level": "error",
         "spacing": {
             "left": 0,
-            "right": 0
+            "right": 1
         }
     },
     "cyclomatic_complexity": {
         "value": 10,
-        "level": "ignore"
+        "level": "error"
     },
     "duplicate_key": {
         "level": "error"
     },
     "empty_constructor_needs_parens": {
-        "level": "ignore"
+        "level": "error"
     },
     "indentation": {
         "value": 2,
@@ -36,7 +36,7 @@
     "max_line_length": {
         "value": 80,
         "level": "error",
-        "limitComments": true
+        "limitComments": false
     },
     "missing_fat_arrows": {
         "level": "ignore"
@@ -52,10 +52,10 @@
         "level": "warn"
     },
     "no_empty_functions": {
-        "level": "ignore"
+        "level": "warn"
     },
     "no_empty_param_list": {
-        "level": "ignore"
+        "level": "warn"
     },
     "no_implicit_braces": {
         "level": "ignore",

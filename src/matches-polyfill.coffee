@@ -1,3 +1,4 @@
+# coffeelint: disable=cyclomatic_complexity
 do ( Element = window.Element ) ->
   if Element and not Element::matches
     Element::matches =
@@ -10,3 +11,4 @@ do ( Element = window.Element ) ->
         nodes = ( @parentNode or @document ).querySelectorAll( selector )
         ( return true if node is this ) for node in nodes
         return false
+# coffeelint: enable=cyclomatic_complexity

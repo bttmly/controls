@@ -102,7 +102,7 @@ class Controls extends jQuery
       if @matches CHECKABLE
         @checked = data.value
       else if @matches "select"
-        each @querySelectorAll( "option" ), ( el ) =>
+        each @querySelectorAll( "option" ), ( el ) ->
           if el.value in data.value
             el.selected = true
       else if @matches "input"
@@ -147,11 +147,17 @@ class Controls extends jQuery
   buttons: -> @filter "button"
   inputs: -> @filter "input"
   selects: -> @filter "select"
-  ofType: ( type ) -> @filter "[type=#{ type }]"
+  ofType: ( types... ) ->
+    selector = types.map ( type ) ->
+      "[type=#{ type }]"
+    .join ", "
+    @filter selector
 
   valid: -> every @, Controls.validateElement
 
+  # TODO!
   bindValidator: ( fn ) ->
+    undefined
 
   labels: ->
     reduce @, ( acc, el ) ->
