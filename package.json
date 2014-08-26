@@ -26,6 +26,7 @@
     "brfs": "^1.2.0",
     "browserify": "^5.9.1",
     "coffeeify": "^0.7.0",
+    "coffeelint": "^1.5.6",
     "express": "^4.8.2",
     "gulp": "^3.8.7",
     "gulp-istanbul": "^0.2.2",
