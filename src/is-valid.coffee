@@ -43,6 +43,6 @@ isValid = ( el, customFn, args... ) ->
       validations[callDesc.method].apply el, args
 
   else
-    return el.validity.valid
+    return el.validity?.valid
 
 module.exports = isValid

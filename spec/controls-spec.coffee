@@ -425,7 +425,7 @@ describe "$.fn.mixinControls", ->
   ctls = undefined
   beforeEach ->
     root = trees.byId "values"
-    ctls = $( root ).mixinControls()
+    ctls = $( root ).filter( TAGS ).mixinControls()
 
   it "Should have all methods from Control.prototype except the blacklisted ones", ->
 
