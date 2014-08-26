@@ -3,27 +3,38 @@
   "private": false,
   "version": "0.0.1",
   "scripts": {
-    "test": "browserify ./spec/controls-spec.coffee > ./spec/jq-controls-spec.js && mocha-phantomjs -R spec ./spec/spec-runner.html && rm ./spec/jq-controls-spec.js",
     "build": "browserify ./src/jquery-controls.coffee > ./dist/jq-controls.js",
-    "built-test": "browserify ./spec/controls-spec.coffee > ./spec/jq-controls-spec.js"
+    "watch": "watchify ./src/jquery-controls.coffee > ./dist/jq-controls.js",
+    "test": "npm run instr && mocha-phantomjs ./spec/spec-runner.html && rm ./spec/jq-controls-spec.js",
+    "build-test": "browserify ./spec/controls-spec.coffee -o ./spec/jq-controls-spec.js",
+    "instr": "npm run build-test && istanbul instrument ./spec/jq-controls-spec.js > ./spec/jq-controls-spec-instr.js",
+    "cover": "npm run instr && istanbul mocha-phantomjs ./spec/spec-runner.html report",
+    "coveralls": "npm run cover && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "browserify": {
-    "transform": [ "coffeeify", "brfs" ]
+    "transform": [
+      "coffeeify",
+      "brfs"
+    ]
   },
-  "dependencies": {},
+  "dependencies": {
+    "jquery": "^2.1.1"
+  },
   "devDependencies": {
     "brfs": "^1.2.0",
     "browserify": "^5.9.1",
     "coffeeify": "^0.7.0",
     "express": "^4.8.2",
-    "function-bind": "^0.1.0",
     "gulp": "^3.8.7",
+    "gulp-istanbul": "^0.2.2",
+    "gulp-mocha-phantomjs": "^0.5.0",
     "gulp-util": "^3.0.0",
-    "jsdom": "^0.11.1",
+    "istanbul": "^0.3.0",
+    "jade": "^1.5.0",
+    "jsdom": "^0.1s1.1",
     "mocha": "^1.21.4",
     "mocha-phantomjs": "^3.5.0",
     "phantomjs": "^1.9.7-15",
-    "testling": "^1.7.0",
     "vinyl-source-stream": "^0.1.1",
     "watchify": "^1.0.1"
   }

@@ -1,4 +1,4 @@
-$ = window.jQuery
+$ = jQuery = window.jQuery
 Controls = require "./controls.coffee"
 
 BLACKLIST = [
@@ -11,8 +11,9 @@ BLACKLIST = [
 ]
 
 module.exports = mixin = ( obj, opt ) ->
-  unless obj instanceof $
-    throw new TypeError "Controls mixin expects a jQuery selection"
+  console.log obj instanceof jQuery
+  # unless obj instanceof $
+  #   throw new TypeError "Controls mixin expects a jQuery selection"
   Object.getOwnPropertyNames( Controls:: ).forEach ( method ) ->
     obj[method] = Controls::[method] unless method in BLACKLIST
   obj

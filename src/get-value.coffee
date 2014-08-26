@@ -1,4 +1,4 @@
-$ = window.jQuery
+$ = jQuery = window.jQuery
 
 { CHECKABLE, SELECTED, BUTTON } = require "./selectors.coffee"
 

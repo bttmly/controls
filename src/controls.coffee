@@ -5,7 +5,7 @@ getValue = require( "./get-value.coffee" ).getValueMappable
 { map, reduce, each, every, slice } = require "./utils.coffee"
 { CHECKABLE, BUTTON, TAGS } = require "./selectors.coffee"
 
-jQuery = window.jQuery
+$ = jQuery = window.jQuery
 
 propMap = ( jqCollection, keyProp, valProp ) ->
   jqCollection.get().reduce ( acc, el, i, arr ) ->

@@ -1,3 +1,5 @@
+require "../src/jquery-controls.coffee"
+
 fs = require "fs"
 
 jQuery = window.jQuery
@@ -43,7 +45,6 @@ trees = window.trees = do ->
     if storage[id] then $.parseHTML( storage[id] )[0] else null
   addTree: ( htmlStr ) ->
     id = $( htmlStr ).attr "id"
-    console.log id
     storage[id] = htmlStr
 
 [
@@ -430,7 +431,7 @@ describe "$.fn.mixinControls", ->
 
     Object.getOwnPropertyNames( Controls:: ).every ( method ) ->
       if method in BLACKLIST
-        ctls[method] isnt Controls::[method]
+        ctls[method] is $.fn[method]
       else
         ctls[method] is Controls::[method]
 
