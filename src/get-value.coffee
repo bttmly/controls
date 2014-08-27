@@ -1,9 +1,9 @@
-$ = jQuery = window.jQuery
+{ jQuery } = window
 
 { CHECKABLE, SELECTED, BUTTON } = require "./selectors.coffee"
 
 getValue = ( el ) ->
-  $el = $( el )
+  $el = jQuery el
   if $el.is BUTTON
     null
   else if $el.is CHECKABLE

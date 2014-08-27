@@ -15,11 +15,16 @@ getTests = ( suite, tests ) ->
 
 getPasses = ->
   page.evaluate ->
-    Number document.querySelector( ".passes em" ).innerHTML
+    passes = document.querySelector( ".passes em" ).innerHTML
+    console.log passes
+    Number passes or 0
 
 getFails = ->
   page.evaluate ->
-    Number document.querySelector( ".failures em" ).innerHTML
+    fails = document.querySelector( ".failures em" ).innerHTML
+    console.log fails
+    Number fails or 0
+
 
 totalTests = ->
   page.evaluate ->
@@ -42,8 +47,8 @@ isDone = ->
 
 waitUntilDone = ->
   if isDone()
-      console.log "#{ getPasses() } tests passing."
-      console.log "#{ getFails() } tests failing."
+    console.log "#{ getPasses() } tests passing."
+    console.log "#{ getFails() } tests failing."
     if isOk()
       console.log "Success!"
       phantom.exit()
@@ -56,7 +61,7 @@ waitUntilDone = ->
       phantom.exit 1
     else
       console.log "reset"
-      setTimeout waitUntilDone, 10
+      setTimeout waitUntilDone, 100
 
 page.open 'http://localhost:3000/', ( status ) ->
   startTime = Date.now()

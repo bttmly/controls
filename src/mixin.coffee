@@ -1,4 +1,5 @@
-$ = jQuery = window.jQuery
+jQuery = { window }
+
 Controls = require "./controls.coffee"
 
 BLACKLIST = [
@@ -14,10 +15,10 @@ BLACKLIST = [
 
 # make sure only contains CONTROLS
 
-isControl = ( el ) -> $( el ).is TAGS
+isControl = ( el ) -> jQuery( el ).is TAGS
 
 module.exports = mixin = ( obj, opt = {} ) ->
-  unless obj instanceof $
+  unless obj instanceof jQuery
     throw new TypeError "Controls mixin expects a jQuery selection"
   unless [].every.call obj, isControl
     throw new TypeError """

@@ -10,12 +10,12 @@ var istanbul = require( 'istanbul' )
 var mochaPhantomJS = require( 'gulp-mocha-phantomjs' );
 
 gulp.task( 'bad-test', function () {
-  gulp.src([ './spec/spec-runner.html' ])
+  gulp.src([ './index.html' ])
     .pipe( mochaPhantomJS() )
-    .pipe( gulpIstanbul.writeReports() )
-    .on( 'end', function () {
-      process.exit( 0 );
-    });
+    // .pipe( gulpIstanbul.writeReports() )
+    // .on( 'end', function () {
+    //   process.exit( 0 );
+    // });
 
 });
 

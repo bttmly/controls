@@ -1,5 +1,5 @@
 validations = require "./validations.coffee"
-$ = jQuery = window.jQuery
+{ jQuery } = window
 
 callOn = ( obj, fn ) ->
   fn.call( obj )
@@ -24,9 +24,9 @@ getArgs = ( str ) ->
       arg?.trim().replace /'/g, ""
 
 isValid = ( el, customFn, args... ) ->
-  $el = $( el )
+  $el = jQuery( el )
   validationAttr = $el.data "control-validation"
-  validationFns = $.data el, "controlValidators"
+  validationFns = jQuery.data el, "controlValidators"
 
   if customFn and typeof customFn is "function"
     return !!customFn.apply( el, args )

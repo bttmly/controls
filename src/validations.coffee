@@ -1,8 +1,6 @@
 { slice } = require "./utils.coffee"
 { CHECK, RADIO } = require "./selectors.coffee"
-
-$ = jQuery = window.jQuery
-document = window.document
+{ document, jQuery } = window
 
 html5Validation = do ->
   testEl = document.createElement "input"
@@ -43,7 +41,7 @@ module.exports = v =
 
   radio: ->
     if ( @name )
-      $( "#{ RADIO }[name='#{ @name }']" ).get()
+      jQuery( "#{ RADIO }[name='#{ @name }']" ).get()
         .some ( input ) -> input.checked
     # false for unnamed elements
     else
@@ -51,8 +49,8 @@ module.exports = v =
 
   checkbox: ( minChecked = 0, maxChecked = 50 ) ->
     if ( @name )
-      len = $( "#{ CHECK }[name='#{ @name }']" ).filter ->
-        $( this ).prop "checked"
+      len = jQuery( "#{ CHECK }[name='#{ @name }']" ).filter ->
+        jQuery( this ).prop "checked"
       .length
       minChecked <= len <= maxChecked
     # true for unnamed elements
