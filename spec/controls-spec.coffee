@@ -2,9 +2,8 @@ require "../src/jquery-controls.coffee"
 
 fs = require "fs"
 
-jQuery = window.jQuery
+{ jQuery, sinon } = window
 { Controls, Values } = jQuery
-sinon = window.sinon
 { expect } = window.chai
 
 { sameSelection } = require "./spec-utilities.coffee"

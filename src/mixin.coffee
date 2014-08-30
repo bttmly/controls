@@ -1,4 +1,4 @@
-jQuery = { window }
+{ jQuery } = window
 
 Controls = require "./controls.coffee"
 

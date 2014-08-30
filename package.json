@@ -4,8 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "build": "browserify ./src/jquery-controls.coffee > ./dist/jq-controls.js",
-    "watch": "watchify ./src/jquery-controls.coffee > ./dist/jq-controls.js",
-    "test": "npm run instr && npm run lint && mocha-phantomjs ./spec/spec-runner.html && npm run cleanup",
+    "watch": "watchify ./src/jquery-controls.coffee -o ./dist/jq-controls.js",
+    "test": "npm run build-test && npm run lint && mocha-phantomjs ./index.html && npm run cleanup",
     "build-test": "browserify ./spec/controls-spec.coffee -o ./spec/jq-controls-spec.js",
     "instr": "npm run build-test && istanbul instrument ./spec/jq-controls-spec.js > ./spec/jq-controls-spec-instr.js",
     "cover": "npm run instr && istanbul report mocha-phantomjs ./spec/spec-runner.html",
@@ -20,7 +20,9 @@
     ]
   },
   "dependencies": {
-    "jquery": "^2.1.1"
+    "chai": "^1.9.1",
+    "jquery": "^2.1.1",
+    "sinon": "^1.10.3"
   },
   "devDependencies": {
     "brfs": "^1.2.0",
