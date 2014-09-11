@@ -30,6 +30,6 @@
     return bound;
   };
 
-  Function.prototype.bind = Function.prototype.bind || bind;
+  // Function.prototype.bind = Function.prototype.bind || bind;
 
 })();
