@@ -6,7 +6,7 @@
     "build": "browserify ./src/jquery-controls.coffee > ./dist/jq-controls.js",
     "watch": "watchify ./src/jquery-controls.coffee -o ./dist/jq-controls.js",
     "test": "npm run lint && testling",
-    "build-test": "browserify ./spec/controls-spec.coffee -o ./spec/jq-controls-spec.js",
+    "build-test": "browserify ./spec/controls-spec.coffee -o ./spec/controls-spec.js",
     "lint": "coffeelint src/*.coffee"
   },
   "browserify": {
@@ -20,7 +20,7 @@
     "harness": "mocha-bdd",
     "scripts": [
       "./spec/bind.js",
-      "./bower_components/jquery/dist/jquery.js"
+      "./spec/jquery.js"
     ],
     "files": "./spec/controls-spec.coffee"
   },

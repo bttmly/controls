@@ -7,7 +7,6 @@ fs = require "fs"
 sinon = require "sinon"
 expect = require( "chai" ).expect
 
-# { expect } = window.chai
 { jQuery } = window
 { Controls, Values } = jQuery
 
