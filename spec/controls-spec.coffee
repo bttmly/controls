@@ -434,9 +434,7 @@ describe "$.fn.mixinControls", ->
       else
         ctls[method] is Controls::[method]
 
-if window?.mochaPhantomJS
-  window.mochaPhantomJS.run()
-else if mocha
-  mocha.run()
-else
-  throw new Error "No Mocha!"
+# if window?.mochaPhantomJS
+#   mochaPhantomJS.run()
+# else
+#   mocha.run()

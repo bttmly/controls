@@ -9,18 +9,23 @@
 </head>
 <body>
 
-  <script src="bower_components/mocha/mocha.js"></script>
-  <script src="bower_components/chai/chai.js"></script>
-  <script src="bower_components/sinon/index.js"></script>
+  <script src="./bower_components/chai/chai.js"></script>
+  <script src="./bower_components/sinon/index.js"></script>
+  <script src="./bower_components/mocha/mocha.js"></script>
+  <script src="./bower_components/jquery/dist/jquery.js"></script>
   <script>
     mocha.setup('bdd');
+    // mocha.ui('bdd');
+    // mocha.reporter('html');
   </script>
 
-
-  <script src="bower_components/jquery/dist/jquery.js"></script>
-
   <div id="mocha"></div>
+
   <script src="./spec/jq-controls-spec.js"></script>
+  <script>
+    if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
+    else { mocha.run(); }
+  </script>
 
 </body>
 </html>

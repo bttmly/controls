@@ -8,12 +8,12 @@
     "test": "npm run build-test && npm run lint && mocha-phantomjs ./index.html && npm run cleanup",
     "build-test": "browserify ./spec/controls-spec.coffee -o ./spec/jq-controls-spec.js",
     "instr": "npm run build-test && istanbul instrument ./spec/jq-controls-spec.js > ./spec/jq-controls-spec-instr.js",
-    "cover": "npm run instr && istanbul report mocha-phantomjs ./spec/spec-runner.html",
-    "coveralls": "npm run cover && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "lint": "coffeelint src/*.coffee",
     "cleanup": "rm ./spec/jq-controls-spec.js && rm ./spec/jq-controls-spec-instr.js"
   },
   "browserify": {
+    "extensions": [ "coffee" ],
+    "basedir": "./",
     "transform": [
       "coffeeify",
       "brfs"
@@ -31,13 +31,11 @@
     "coffeeify": "^0.7.0",
     "coffeelint": "^1.5.6",
     "express": "^4.8.2",
-    "gulp": "^3.8.7",
+    "gulp": "^3.8.8",
     "gulp-istanbul": "^0.2.2",
-    "gulp-mocha-phantomjs": "^0.5.0",
     "gulp-util": "^3.0.0",
     "istanbul": "^0.3.0",
     "jade": "^1.5.0",
-    "mocha": "^1.21.4",
     "mocha-phantomjs": "^3.5.0",
     "phantomjs": "^1.9.7-15",
     "vinyl-source-stream": "^0.1.1",
