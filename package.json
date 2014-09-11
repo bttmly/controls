@@ -5,19 +5,25 @@
   "scripts": {
     "build": "browserify ./src/jquery-controls.coffee > ./dist/jq-controls.js",
     "watch": "watchify ./src/jquery-controls.coffee -o ./dist/jq-controls.js",
-    "test": "npm run build-test && npm run lint && mocha-phantomjs ./index.html && npm run cleanup",
+    "test": "npm run lint && testling",
     "build-test": "browserify ./spec/controls-spec.coffee -o ./spec/jq-controls-spec.js",
-    "instr": "npm run build-test && istanbul instrument ./spec/jq-controls-spec.js > ./spec/jq-controls-spec-instr.js",
-    "lint": "coffeelint src/*.coffee",
-    "cleanup": "rm ./spec/jq-controls-spec.js && rm ./spec/jq-controls-spec-instr.js"
+    "lint": "coffeelint src/*.coffee"
   },
   "browserify": {
-    "extensions": [ "coffee" ],
     "basedir": "./",
     "transform": [
       "coffeeify",
       "brfs"
     ]
+  },
+  "testling": {
+    "harness": "mocha-bdd",
+    "scripts": [
+      "./bower_components/chai/chai.js",
+      "./bower_components/sinon/index.js",
+      "./bower_components/jquery/dist/jquery.js"
+    ],
+    "files": "./spec/controls-spec.coffee"
   },
   "dependencies": {
     "chai": "^1.9.1",
@@ -30,15 +36,9 @@
     "coffee-script": "^1.7.1",
     "coffeeify": "^0.7.0",
     "coffeelint": "^1.5.6",
-    "express": "^4.8.2",
-    "gulp": "^3.8.8",
-    "gulp-istanbul": "^0.2.2",
-    "gulp-util": "^3.0.0",
     "istanbul": "^0.3.0",
     "jade": "^1.5.0",
-    "mocha-phantomjs": "^3.5.0",
-    "phantomjs": "^1.9.7-15",
-    "vinyl-source-stream": "^0.1.1",
+    "testling": "^1.7.0",
     "watchify": "^1.0.1"
   }
 }

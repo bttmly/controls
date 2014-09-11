@@ -1,3 +1,6 @@
+# phantomJS lacks Function::bind
+Function::bind = Function::bind or require "./bind.coffee"
+
 require "../src/jquery-controls.coffee"
 
 fs = require "fs"
@@ -30,14 +33,6 @@ type = ->
 first = ( arr ) -> arr[ 0 ]
 last = ( arr ) -> arr[ arr.length - 1 ]
 
-# htmlFiles = [
-#   "./spec/html/values.html"
-#   "./spec/html/mixed.html"
-#   "./spec/html/validation.html"
-#   "./spec/html/with-initial-state.html"
-#   "./spec/html/with-labels.html"
-# ]
-#
 trees = window.trees = do ->
   storage = {}
   byId: ( id ) ->
@@ -53,11 +48,6 @@ trees = window.trees = do ->
   fs.readFileSync "#{ __dirname }/html/with-initial-state.html", "utf8"
   fs.readFileSync "#{ __dirname }/html/with-labels.html", "utf8"
 ].map trees.addTree.bind trees
-
-# $.when.apply $, htmlFiles.map $.get
-#   .then ->
-#     slice( arguments ).map( first ).map( trees.addTree )
-
 
 describe "jQuery.fn.controls()", ->
 
@@ -433,8 +423,3 @@ describe "$.fn.mixinControls", ->
         ctls[method] is $.fn[method]
       else
         ctls[method] is Controls::[method]
-
-# if window?.mochaPhantomJS
-#   mochaPhantomJS.run()
-# else
-#   mocha.run()

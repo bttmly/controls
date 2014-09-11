@@ -1,13 +1,7 @@
 {
   "name": "jquery-controls",
-  "private": true,
+  "private": false,
   "dependencies": {
-    "jquery": "~2.1.1",
-    "coffee-script": "~1.7.1"
-  },
-  "devDependencies": {
-    "chai": "~1.8.0",
-    "mocha": "~1.14.0",
-    "sinon": "http://sinonjs.org/releases/sinon-1.10.3.js"
+    "jquery": "~2.1.1"
   }
 }
