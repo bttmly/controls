@@ -5,8 +5,9 @@
   "scripts": {
     "build": "browserify ./src/jquery-controls.coffee > ./dist/jq-controls.js",
     "watch": "watchify ./src/jquery-controls.coffee -o ./dist/jq-controls.js",
-    "test": "npm run lint && testling",
-    "build-test": "browserify ./spec/controls-spec.coffee -o ./spec/controls-spec.js",
+    "test": "npm run get-jquery && npm run lint && testling",
+    "get-jquery": "curl -X GET http://code.jquery.com/jquery-2.1.1.min.js > ./spec/jquery.js",
+    "build-test": "npm run get-jquery && browserify ./spec/controls-spec.coffee -o ./spec/controls-spec.js",
     "lint": "coffeelint src/*.coffee"
   },
   "browserify": {
@@ -19,7 +20,6 @@
   "testling": {
     "harness": "mocha-bdd",
     "scripts": [
-      "./spec/bind.js",
       "./spec/jquery.js"
     ],
     "files": "./spec/controls-spec.coffee"
