@@ -4,10 +4,14 @@ Function::bind = Function::bind or require "./bind.coffee"
 require "../src/jquery-controls.coffee"
 
 fs = require "fs"
+sinon = require "sinon"
+expect = require( "chai" ).expect
 
-{ jQuery, sinon } = window
+# { expect } = window.chai
+{ jQuery } = window
 { Controls, Values } = jQuery
-{ expect } = window.chai
+
+
 
 { sameSelection } = require "./spec-utilities.coffee"
 
