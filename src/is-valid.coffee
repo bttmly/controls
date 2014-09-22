@@ -29,7 +29,7 @@ isValid = ( el, customFn, args... ) ->
   validationFns = jQuery.data el, "controlValidators"
 
   if customFn and typeof customFn is "function"
-    return !!customFn.apply( el, args )
+    return Boolean customFn.apply( el, args )
 
   else if validationFns?.length
     return validationFns.every callOn.bind( null, el )

@@ -50,12 +50,10 @@ class Controls extends jQuery
     @_validityListener = validityListener.bind @
 
     # set validity listener
-    unless opt.noAutoValidate
-      @startValidListening()
+    @startValidListening() unless opt.noAutoValidate
 
     # set base state for .reset()
-    unless opt.noResetState
-      @setResetState()
+    @setResetState() unless opt.noResetState
 
   startValidListening: ->
     @on "change, input", @_validityListener
@@ -64,6 +62,7 @@ class Controls extends jQuery
     @off "change, input", @_validityListener
 
   setResetState: ->
+    # "this" is the DOM node
     @each ( i, el ) ->
       jQuery.data @, "resetState",
         disabled: @disabled
