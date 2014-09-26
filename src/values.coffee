@@ -1,6 +1,7 @@
 module.exports = class Values extends Array
   constructor: ( items ) ->
-    throw new TypeError( "Values constructor requires an array" ) unless Array.isArray items
+    unless Array.isArray items
+      throw new TypeError( "Values constructor requires an array" )
     @push.apply @, items
 
   normal: ->
